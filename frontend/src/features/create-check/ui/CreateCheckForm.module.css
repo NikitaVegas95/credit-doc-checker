@@ -1,0 +1,40 @@
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: #344054;
+  font-weight: 700;
+}
+
+.field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #c8d2e0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+}
+
+.dropzone {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  padding: 20px;
+  border: 1px dashed #9aa8bd;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #52627a;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropzone input {
+  width: 100%;
+  max-width: 320px;
+}
+

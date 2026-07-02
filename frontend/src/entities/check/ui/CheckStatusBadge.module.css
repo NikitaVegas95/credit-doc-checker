@@ -1,0 +1,28 @@
+.success,
+.danger,
+.warning {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.success {
+  background: #e7f7ee;
+  color: #146c3f;
+}
+
+.danger {
+  background: #fdecec;
+  color: #b42318;
+}
+
+.warning {
+  background: #fff4d8;
+  color: #8a4b00;
+}
+

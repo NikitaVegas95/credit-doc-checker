@@ -1,0 +1,20 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #1f5eff;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.button:disabled {
+  background: #c8d2e0;
+  color: #637089;
+  cursor: not-allowed;
+}
+
