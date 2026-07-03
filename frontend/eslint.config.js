@@ -89,7 +89,7 @@ const layerBoundaries = [
 ]
 
 export default defineConfig([
-  globalIgnores(['dist', 'storybook-static']),
+  globalIgnores(['coverage', 'dist', 'playwright-report', 'storybook-static', 'test-results']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
