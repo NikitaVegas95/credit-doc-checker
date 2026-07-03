@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom'
 
-import { routeConfig } from '../config/routeConfig'
+import { routeConfig, type AppRouteConfig } from '../config/routeConfig'
+
+const renderRoute = (route: AppRouteConfig) => (
+  <Route key={route.id} path={'path' in route ? route.path : undefined} element={route.element}>
+    {'children' in route ? route.children?.map(renderRoute) : null}
+  </Route>
+)
 
 export function AppRouter() {
-  return (
-    <Routes>
-      {routeConfig.map((route) => (
-        <Route key={route.id} path={route.path} element={route.element} />
-      ))}
-    </Routes>
-  )
+  return <Routes>{routeConfig.map(renderRoute)}</Routes>
 }

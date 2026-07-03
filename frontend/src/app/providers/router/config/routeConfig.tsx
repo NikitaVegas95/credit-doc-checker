@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
+import { MainLayout } from '@/app/layouts/main-layout'
 import { CheckPage } from '@/pages/check-page'
 import { HistoryPage } from '@/pages/history-page'
 import { APP_ROUTE_PATHS, type AppRoutePath } from '@/shared/config/routes'
 
-type AppRouteObject = {
+type AppPageRouteObject = {
   id: string
   path: AppRoutePath
   element: ReactNode
@@ -12,32 +13,49 @@ type AppRouteObject = {
   end?: boolean
 }
 
+type AppLayoutRouteObject = {
+  id: string
+  element: ReactNode
+  children: readonly AppPageRouteObject[]
+}
+
 const DEFAULT_ROUTE_PATH = APP_ROUTE_PATHS.check
 
 export const routeConfig = [
   {
-    id: 'check',
-    path: APP_ROUTE_PATHS.check,
-    element: <CheckPage />,
-    navLabel: 'Проверка',
-    end: true,
+    id: 'mainLayout',
+    element: <MainLayout />,
+    children: [
+      {
+        id: 'check',
+        path: APP_ROUTE_PATHS.check,
+        element: <CheckPage />,
+        navLabel: 'Проверка',
+        end: true,
+      },
+      {
+        id: 'history',
+        path: APP_ROUTE_PATHS.history,
+        element: <HistoryPage />,
+        navLabel: 'История',
+        end: false,
+      },
+      {
+        id: 'notFound',
+        path: APP_ROUTE_PATHS.notFound,
+        element: <Navigate to={DEFAULT_ROUTE_PATH} replace />,
+      },
+    ],
   },
-  {
-    id: 'history',
-    path: APP_ROUTE_PATHS.history,
-    element: <HistoryPage />,
-    navLabel: 'История',
-    end: false,
-  },
-  {
-    id: 'notFound',
-    path: APP_ROUTE_PATHS.notFound,
-    element: <Navigate to={DEFAULT_ROUTE_PATH} replace />,
-  },
-] as const satisfies readonly AppRouteObject[]
+] as const satisfies readonly AppLayoutRouteObject[]
 
-export type AppRoute = (typeof routeConfig)[number]['id']
-export type AppRouteConfig = (typeof routeConfig)[number]
+type AppRouteConfigItem = (typeof routeConfig)[number]
+type AppRouteChildConfig = NonNullable<AppRouteConfigItem['children']>[number]
+
+export type AppRoute = AppRouteConfigItem['id'] | AppRouteChildConfig['id']
+export type AppRouteConfig = AppRouteConfigItem | AppRouteChildConfig
 export type AppNavRoute = Extract<AppRouteConfig, { navLabel: string }>
 
-export const navRoutes = routeConfig.filter((route): route is AppNavRoute => 'navLabel' in route)
+export const navRoutes = routeConfig
+  .flatMap((route) => route.children ?? [])
+  .filter((route): route is AppNavRoute => 'navLabel' in route)
