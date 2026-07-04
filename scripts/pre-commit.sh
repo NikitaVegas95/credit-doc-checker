@@ -16,3 +16,6 @@ npm --prefix frontend run test:all --if-present
 
 echo "pre-commit: build frontend"
 npm --prefix frontend run build
+
+echo "pre-commit: build storybook"
+npm --prefix frontend run build-storybook

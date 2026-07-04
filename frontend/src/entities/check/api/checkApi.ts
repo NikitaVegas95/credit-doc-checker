@@ -1,23 +1,34 @@
+import axios from 'axios'
 import { getApiUrl } from '@/shared/api/http'
 
 import type { CheckResult, CheckSummary, Program } from '../model/types'
 
-export async function createCheck(program: Program, files: File[]) {
+type CreateCheckOptions = {
+  onUploadProgress?: (progress: number) => void
+}
+
+export async function createCheck(program: Program, files: File[], options: CreateCheckOptions = {}) {
   const formData = new FormData()
 
   formData.append('program', program)
   files.forEach((file) => formData.append('files', file))
 
-  const response = await fetch(getApiUrl('/api/checks'), {
-    method: 'POST',
-    body: formData,
-  })
+  try {
+    const response = await axios.post<CheckResult>(getApiUrl('/api/checks'), formData, {
+      onUploadProgress: (event) => {
+        if (!event.total) {
+          return
+        }
 
-  if (!response.ok) {
+        const progress = Math.round((event.loaded / event.total) * 100)
+        options.onUploadProgress?.(progress)
+      },
+    })
+
+    return response.data
+  } catch {
     throw new Error('Не удалось запустить проверку документов.')
   }
-
-  return response.json() as Promise<CheckResult>
 }
 
 export async function getChecks() {

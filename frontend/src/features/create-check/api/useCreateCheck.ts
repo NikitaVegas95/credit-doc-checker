@@ -16,13 +16,15 @@ type CreateCheckMutationVariables = {
 
 type UseCreateCheckOptions = {
   onSuccess?: (result: CheckResult) => void
+  onUploadProgress?: (progress: number) => void
 }
 
-export function useCreateCheck({ onSuccess }: UseCreateCheckOptions) {
+export function useCreateCheck({ onSuccess, onUploadProgress }: UseCreateCheckOptions) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ files, program }: CreateCheckMutationVariables) => createCheck(program, files),
+    mutationFn: ({ files, program }: CreateCheckMutationVariables) =>
+      createCheck(program, files, { onUploadProgress }),
     onSuccess: (result) => {
       useCreateCheckFormStore.getState().setResult(result)
       queryClient.setQueryData<CheckSummary[]>(checksQueryKeys.all, (checks = []) => [

@@ -3,17 +3,21 @@ import styles from './CreateCheckForm.module.css'
 type CreateCheckProgressProps = {
   hasFiles: boolean
   isPending: boolean
-  requestProgress: number
+  requestProgress?: number
+  uploadProgress?: number
 }
 
 export function CreateCheckProgress({
   hasFiles,
   isPending,
   requestProgress,
+  uploadProgress,
 }: CreateCheckProgressProps) {
+  const currentProgress = uploadProgress ?? requestProgress ?? 0
+
   if (isPending) {
-    const progressValue = Math.max(8, requestProgress)
-    const activeStep = progressValue < 55 ? 'Загружаем документы' : 'Проверяем пакет'
+    const progressValue = Math.max(0, Math.min(currentProgress, 100))
+    const activeStep = progressValue < 100 ? 'Отправляем документы' : 'Проверяем пакет'
 
     return (
       <div className={styles.progressPanel} aria-live="polite">
