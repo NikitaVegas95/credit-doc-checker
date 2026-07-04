@@ -49,14 +49,25 @@ describe('CreateCheckForm', () => {
     expect(input).toHaveAttribute('accept', '.pdf,.doc,.docx,.jpg,.jpeg,.png')
   })
 
-  it('enables submit when program and files are selected', async () => {
+  it('highlights required fields after submit attempt', async () => {
     const user = userEvent.setup()
 
     renderWithQueryProvider(<CreateCheckForm />)
 
     const submitButton = screen.getByRole('button', { name: 'Запустить проверку' })
 
-    expect(submitButton).toBeDisabled()
+    expect(submitButton).toBeEnabled()
+
+    await user.click(submitButton)
+
+    expect(screen.getByText('Выберите льготную программу')).toBeInTheDocument()
+    expect(screen.getByText('Добавьте хотя бы один документ для проверки.')).toBeInTheDocument()
+  })
+
+  it('shows selected files and upload readiness progress', async () => {
+    const user = userEvent.setup()
+
+    renderWithQueryProvider(<CreateCheckForm />)
 
     await user.selectOptions(screen.getByLabelText('Льготная программа'), 'federal')
 
@@ -72,7 +83,8 @@ describe('CreateCheckForm', () => {
 
     expect(screen.getByText('Выбрано файлов: 1')).toBeInTheDocument()
     expect(screen.getByText('договор.pdf')).toBeInTheDocument()
-    expect(submitButton).toBeEnabled()
+    expect(screen.getByText('Файлы готовы к загрузке')).toBeInTheDocument()
+    expect(screen.getByText('100%')).toBeInTheDocument()
   })
 
   it('shows file validation errors and blocks submit', async () => {
@@ -88,7 +100,7 @@ describe('CreateCheckForm', () => {
     })
 
     expect(screen.getByText(/Недопустимый формат/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
   })
 
   it('removes selected file from list', async () => {
@@ -107,7 +119,7 @@ describe('CreateCheckForm', () => {
     await user.click(screen.getByRole('button', { name: 'Удалить' }))
 
     expect(screen.queryByText('договор.pdf')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
   })
 
   it('stores created check in query cache after successful submit', async () => {

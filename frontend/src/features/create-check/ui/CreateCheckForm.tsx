@@ -5,6 +5,7 @@ import { Button } from '@/shared/ui/button'
 import { useCreateCheck } from '../api/useCreateCheck'
 import { ACCEPTED_FILE_EXTENSIONS, validateFiles } from '../lib/fileValidation'
 
+import { CreateCheckProgress } from './CreateCheckProgress'
 import { SelectedFilesList } from './SelectedFilesList'
 import { DocumentRequirementsList } from './DocumentRequirementsList'
 
@@ -32,12 +33,15 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isDropActive, setIsDropActive] = useState(false)
+  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false)
   const selectedProgram = useWatch({ control, name: 'program' })
   const fileIssues = useMemo(() => validateFiles(selectedFiles), [selectedFiles])
 
   const createCheckMutation = useCreateCheck({ onSuccess })
 
   const onSubmit = handleSubmit(({ program }) => {
+    setIsSubmitAttempted(true)
+
     if (fileIssues.length > 0 || selectedFiles.length === 0) {
       return
     }
@@ -46,13 +50,13 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
       files: selectedFiles,
       program: program as Program,
     })
+  }, () => {
+    setIsSubmitAttempted(true)
   })
 
-  const isSubmitDisabled =
-    createCheckMutation.isPending ||
-    !selectedProgram ||
-    selectedFiles.length === 0 ||
-    fileIssues.length > 0
+  const isSubmitDisabled = createCheckMutation.isPending
+  const shouldShowProgramError = isSubmitAttempted && !selectedProgram
+  const shouldShowFilesError = isSubmitAttempted && selectedFiles.length === 0
 
   const addFiles = (files: FileList | File[]) => {
     const filesToAdd = Array.from(files)
@@ -66,9 +70,10 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
 
   return (
     <form className={styles.form} onSubmit={onSubmit}>
-      <label className={styles.field}>
+      <label className={shouldShowProgramError ? `${styles.field} ${styles.fieldInvalid}` : styles.field}>
         <span>Льготная программа</span>
         <select
+          aria-invalid={shouldShowProgramError}
           {...register('program', {
             validate: (value) => Boolean(value) || 'Выберите льготную программу',
           })}
@@ -83,12 +88,20 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
           ))}
         </select>
       </label>
-      {errors.program ? <p className={styles.error}>{errors.program.message}</p> : null}
+      {errors.program || shouldShowProgramError ? (
+        <p className={styles.error}>{errors.program?.message ?? 'Выберите льготную программу'}</p>
+      ) : null}
 
       <DocumentRequirementsList program={selectedProgram ?? ''} />
 
       <label
-        className={isDropActive ? `${styles.dropzone} ${styles.dropzoneActive}` : styles.dropzone}
+        className={[
+          styles.dropzone,
+          isDropActive ? styles.dropzoneActive : '',
+          shouldShowFilesError ? styles.dropzoneInvalid : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         onDragOver={(event) => {
           event.preventDefault()
           setIsDropActive(true)
@@ -113,7 +126,9 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
           }}
         />
       </label>
-      {selectedFiles.length === 0 ? (
+      {shouldShowFilesError ? (
+        <p className={styles.error}>Добавьте хотя бы один документ для проверки.</p>
+      ) : selectedFiles.length === 0 ? (
         <p className={styles.hint}>Добавьте хотя бы один документ.</p>
       ) : null}
 
@@ -136,15 +151,10 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         onRemove={removeFile}
       />
 
+      <CreateCheckProgress hasFiles={selectedFiles.length > 0} isPending={createCheckMutation.isPending} />
+
       {createCheckMutation.isError ? (
         <p className={styles.error}>{createCheckMutation.error.message}</p>
-      ) : null}
-
-      {createCheckMutation.isPending ? (
-        <div className={styles.processing} aria-live="polite">
-          <strong>Анализируем документы</strong>
-          <span className={styles.processingText}>Это может занять несколько секунд.</span>
-        </div>
       ) : null}
 
       <Button type="submit" disabled={isSubmitDisabled}>

@@ -1,16 +1,22 @@
 import { expect, test } from '@playwright/test'
 
-test('opens check page and shows disabled submit before files are selected', async ({ page }) => {
+test('opens check page and highlights required fields after submit attempt', async ({ page }) => {
   await page.goto('/')
 
   await expect(page.getByRole('heading', { name: 'Проверка льготных кредитов' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Новая проверка' })).toBeVisible()
   await expect(page.getByLabel('Льготная программа')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
+
+  await page.getByRole('button', { name: 'Запустить проверку' }).click()
+
+  await expect(page.getByText('Выберите льготную программу', { exact: true })).toBeVisible()
+  await expect(page.getByText('Добавьте хотя бы один документ для проверки.')).toBeVisible()
 })
 
 test('submits documents and renders check result', async ({ page }) => {
   await page.route('**/api/checks', async (route) => {
+    await page.waitForTimeout(150)
     await route.fulfill({
       contentType: 'application/json',
       json: {
@@ -52,8 +58,11 @@ test('submits documents and renders check result', async ({ page }) => {
     })
 
   await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
+  await expect(page.getByText('Файлы готовы к загрузке')).toBeVisible()
 
   await page.getByRole('button', { name: 'Запустить проверку' }).click()
+
+  await expect(page.getByText('Загружаем документы')).toBeVisible()
 
   await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
   await expect(page.getByText('Проверка состава пакета')).toBeVisible()
@@ -73,7 +82,7 @@ test('blocks submit for unsupported file format', async ({ page }) => {
     })
 
   await expect(page.getByText(/Недопустимый формат/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
 })
 
 test('navigates between check and history pages', async ({ page }) => {

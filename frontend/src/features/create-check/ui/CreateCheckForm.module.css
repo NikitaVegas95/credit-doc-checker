@@ -20,6 +20,11 @@
   color: #172033;
 }
 
+.fieldInvalid select {
+  border-color: #bc2b2b;
+  background: #fff7f7;
+}
+
 .dropzone {
   display: grid;
   min-height: 160px;
@@ -42,6 +47,12 @@
   border-color: #1f5eff;
   background: #eef4ff;
   color: #172033;
+}
+
+.dropzoneInvalid {
+  border-color: #bc2b2b;
+  background: #fff7f7;
+  color: #7a1f1f;
 }
 
 .requirements {
@@ -182,9 +193,9 @@
   padding-left: 18px;
 }
 
-.processing {
+.progressPanel {
   display: grid;
-  gap: 4px;
+  gap: 8px;
   padding: 12px;
   border: 1px solid #d9e0eb;
   border-radius: 8px;
@@ -192,7 +203,27 @@
   color: #172033;
 }
 
-.processingText {
+.progressPanel p {
+  margin: 0;
   color: #637089;
   font-size: 14px;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progressValue {
+  color: #52627a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.progressBar {
+  width: 100%;
+  height: 10px;
+  accent-color: #1f5eff;
 }
