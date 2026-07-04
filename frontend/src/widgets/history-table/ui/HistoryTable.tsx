@@ -3,6 +3,7 @@ import { filterChecksByStatus } from '@/features/filter-checks'
 import { Button } from '@/shared/ui/button'
 import { useDeleteCheck } from '../api/useDeleteCheck'
 import { useChecksHistory } from '../api/useChecksHistory'
+import { confirmDeleteCheck } from '../lib/confirmDeleteCheck'
 import type { HistoryStatusFilter as HistoryStatusFilterValue } from '../model/filterOptions'
 
 import { HistoryRows } from './HistoryRows'
@@ -18,7 +19,7 @@ export function HistoryTable() {
   const hasChecks = checks.length > 0
 
   const handleDeleteCheck = (checkId: string) => {
-    if (window.confirm(`Удалить проверку ${checkId}?`)) {
+    if (confirmDeleteCheck(checkId)) {
       deleteCheckMutation.mutate(checkId)
     }
   }

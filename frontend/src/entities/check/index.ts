@@ -9,5 +9,6 @@ export type {
 } from './model/types'
 export { createCheck, deleteCheck, getCheck, getChecks } from './api/checkApi'
 export { checksQueryKeys } from './api/checkQueryKeys'
+export { toCheckSummary } from './lib/toCheckSummary'
 export { PROGRAM_OPTIONS, STATUS_META } from './model/constants'
 export { CheckStatusBadge } from './ui/CheckStatusBadge'
