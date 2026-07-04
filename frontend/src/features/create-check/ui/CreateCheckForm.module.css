@@ -38,6 +38,54 @@
   max-width: 320px;
 }
 
+.dropzoneActive {
+  border-color: #1f5eff;
+  background: #eef4ff;
+  color: #172033;
+}
+
+.requirements {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d9e0eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.requirements h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.requirements p {
+  margin: 0;
+  color: #637089;
+}
+
+.requirements ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.requirements li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.requirements li span:last-child {
+  color: #637089;
+  font-size: 13px;
+}
+
 .fileList {
   display: grid;
   gap: 10px;
@@ -82,9 +130,69 @@
   font-size: 14px;
 }
 
+.fileMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fileMeta button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #bc2b2b;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.hint {
+  margin: -8px 0 0;
+  color: #637089;
+  font-size: 14px;
+}
+
 .error {
   margin: -8px 0 0;
   color: #bc2b2b;
   font-size: 14px;
   font-weight: 700;
+}
+
+.errorList {
+  display: grid;
+  gap: 8px;
+  margin: -8px 0 0;
+  padding: 12px;
+  border: 1px solid #f0b8b8;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #bc2b2b;
+  font-size: 14px;
+}
+
+.errorList p,
+.errorList ul {
+  margin: 0;
+}
+
+.errorList ul {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+}
+
+.processing {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #d9e0eb;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: #172033;
+}
+
+.processingText {
+  color: #637089;
+  font-size: 14px;
 }

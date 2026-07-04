@@ -25,6 +25,14 @@ const checks: CheckSummary[] = [
     status: 'reject',
     status_label: 'Нельзя заявлять в банк',
   },
+  {
+    check_id: 'manual-1',
+    checked_at: '2026-07-03T14:00:00.000Z',
+    doc_count: 5,
+    program: 'regional',
+    status: 'manual',
+    status_label: 'Требуется ручная проверка',
+  },
 ]
 
 function renderWithQueryProvider(ui: ReactElement, initialChecks?: CheckSummary[]) {
@@ -67,8 +75,12 @@ describe('HistoryTable', () => {
 
     expect(await screen.findByText('approve-1')).toBeInTheDocument()
     expect(screen.getByText('reject-1')).toBeInTheDocument()
+    expect(screen.getByText('manual-1')).toBeInTheDocument()
     expect(screen.getByText('Федеральная')).toBeInTheDocument()
-    expect(screen.getByText('Областная')).toBeInTheDocument()
+    expect(screen.getAllByText('Областная')).toHaveLength(2)
+    expect(screen.getByLabelText('Сводка истории')).toBeInTheDocument()
+    expect(screen.getByText('Всего')).toBeInTheDocument()
+    expect(screen.getByText('3')).toBeInTheDocument()
   })
 
   it('filters checks by selected status', async () => {
@@ -81,6 +93,26 @@ describe('HistoryTable', () => {
 
     expect(screen.queryByText('approve-1')).not.toBeInTheDocument()
     expect(screen.getByText('reject-1')).toBeInTheDocument()
+    expect(screen.queryByText('manual-1')).not.toBeInTheDocument()
+  })
+
+  it('filters checks by search query and resets filters', async () => {
+    const user = userEvent.setup()
+
+    renderWithQueryProvider(<HistoryTable />, checks)
+
+    await screen.findByText('approve-1')
+    await user.type(screen.getByRole('searchbox', { name: 'Поиск по истории' }), 'manual')
+
+    expect(screen.queryByText('approve-1')).not.toBeInTheDocument()
+    expect(screen.queryByText('reject-1')).not.toBeInTheDocument()
+    expect(screen.getByText('manual-1')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Сбросить фильтры' }))
+
+    expect(screen.getByText('approve-1')).toBeInTheDocument()
+    expect(screen.getByText('reject-1')).toBeInTheDocument()
+    expect(screen.getByText('manual-1')).toBeInTheDocument()
   })
 
   it('deletes check after confirmation', async () => {
@@ -91,7 +123,7 @@ describe('HistoryTable', () => {
       }
 
       return Promise.resolve(
-        new Response(JSON.stringify([checks[1]]), {
+        new Response(JSON.stringify([checks[1], checks[2]]), {
           headers: { 'Content-Type': 'application/json' },
           status: 200,
         }),

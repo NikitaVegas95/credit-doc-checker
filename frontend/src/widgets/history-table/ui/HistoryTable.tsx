@@ -1,22 +1,29 @@
 import { useState } from 'react'
-import { filterChecksByStatus } from '@/features/filter-checks'
+import { filterChecksBySearchQuery, filterChecksByStatus } from '@/features/filter-checks'
 import { Button } from '@/shared/ui/button'
 import { useDeleteCheck } from '../api/useDeleteCheck'
 import { useChecksHistory } from '../api/useChecksHistory'
 import { confirmDeleteCheck } from '../lib/confirmDeleteCheck'
+import { getHistoryStats } from '../lib/getHistoryStats'
 import type { HistoryStatusFilter as HistoryStatusFilterValue } from '../model/filterOptions'
 
 import { HistoryRows } from './HistoryRows'
+import { HistorySearch } from './HistorySearch'
+import { HistorySummary } from './HistorySummary'
 import { HistoryStatusFilter } from './HistoryStatusFilter'
 import styles from './HistoryTable.module.css'
 
 export function HistoryTable() {
   const [statusFilter, setStatusFilter] = useState<HistoryStatusFilterValue>('all')
+  const [searchQuery, setSearchQuery] = useState('')
   const checksQuery = useChecksHistory()
   const deleteCheckMutation = useDeleteCheck()
   const checks = checksQuery.data ?? []
-  const filteredChecks = filterChecksByStatus(checks, statusFilter)
+  const statusFilteredChecks = filterChecksByStatus(checks, statusFilter)
+  const filteredChecks = filterChecksBySearchQuery(statusFilteredChecks, searchQuery)
+  const stats = getHistoryStats(checks)
   const hasChecks = checks.length > 0
+  const hasActiveFilters = statusFilter !== 'all' || searchQuery.trim().length > 0
 
   const handleDeleteCheck = (checkId: string) => {
     if (confirmDeleteCheck(checkId)) {
@@ -56,6 +63,21 @@ export function HistoryTable() {
 
       {checksQuery.isSuccess && hasChecks ? (
         <>
+          <HistorySummary stats={stats} />
+          <div className={styles.controls}>
+            <HistorySearch value={searchQuery} onChange={setSearchQuery} />
+            {hasActiveFilters ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setSearchQuery('')
+                }}
+              >
+                Сбросить фильтры
+              </Button>
+            ) : null}
+          </div>
           <HistoryStatusFilter value={statusFilter} onChange={setStatusFilter} />
           {filteredChecks.length > 0 ? (
             <HistoryRows
@@ -65,7 +87,7 @@ export function HistoryTable() {
             />
           ) : (
             <div className={styles.empty}>
-              <p>Нет проверок с выбранным статусом.</p>
+              <p>Нет проверок по заданным условиям.</p>
             </div>
           )}
           {deleteCheckMutation.isError ? (

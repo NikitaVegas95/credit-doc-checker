@@ -4,6 +4,7 @@ import { APP_ROUTE_PATHS } from '@/shared/config/routes'
 import { Button } from '@/shared/ui/button'
 import { useCheckDetails } from '../api/useCheckDetails'
 
+import { CheckDetailsSummary } from './CheckDetailsSummary'
 import styles from './CheckDetailsPage.module.css'
 
 export function CheckDetailsPage() {
@@ -41,7 +42,12 @@ export function CheckDetailsPage() {
         </div>
       ) : null}
 
-      {checkDetailsQuery.data ? <CheckResultPanel result={checkDetailsQuery.data} /> : null}
+      {checkDetailsQuery.data ? (
+        <>
+          <CheckDetailsSummary result={checkDetailsQuery.data} />
+          <CheckResultPanel result={checkDetailsQuery.data} />
+        </>
+      ) : null}
     </section>
   )
 }

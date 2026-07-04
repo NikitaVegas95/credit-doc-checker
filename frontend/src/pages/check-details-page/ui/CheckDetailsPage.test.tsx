@@ -62,8 +62,10 @@ describe('CheckDetailsPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Детали проверки' })).toBeInTheDocument()
     expect(screen.getByText('ID: details-1')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Сводка проверки' })).toBeInTheDocument()
+    expect(screen.getByText('Федеральная')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Результат проверки' })).toBeInTheDocument()
-    expect(screen.getByText('Можно заявлять в банк')).toBeInTheDocument()
+    expect(screen.getAllByText('Можно заявлять в банк')).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'К истории' })).toHaveAttribute('href', '/history')
   })
 })

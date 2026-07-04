@@ -5,9 +5,10 @@ import styles from './CreateCheckForm.module.css'
 type SelectedFilesListProps = {
   files: File[]
   onClear: () => void
+  onRemove: (file: File) => void
 }
 
-export function SelectedFilesList({ files, onClear }: SelectedFilesListProps) {
+export function SelectedFilesList({ files, onClear, onRemove }: SelectedFilesListProps) {
   if (files.length === 0) {
     return null
   }
@@ -24,7 +25,12 @@ export function SelectedFilesList({ files, onClear }: SelectedFilesListProps) {
         {files.map((file) => (
           <li key={`${file.name}-${file.lastModified}`}>
             <span>{file.name}</span>
-            <span>{formatFileSize(file.size)}</span>
+            <span className={styles.fileMeta}>
+              {formatFileSize(file.size)}
+              <button type="button" onClick={() => onRemove(file)}>
+                Удалить
+              </button>
+            </span>
           </li>
         ))}
       </ul>

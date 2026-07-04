@@ -1,11 +1,10 @@
 import { render, screen } from '@testing-library/react'
-
 import type { CheckResult } from '@/entities/check'
 
-import { CheckResultPanel } from './CheckResultPanel'
+import { CheckDetailsSummary } from './CheckDetailsSummary'
 
 const result: CheckResult = {
-  check_id: 'check-1',
+  check_id: 'details-1',
   checked_at: '2026-07-03T00:00:00.000Z',
   documents: [
     {
@@ -33,20 +32,16 @@ const result: CheckResult = {
   status_label: 'Требуется ручная проверка',
 }
 
-describe('CheckResultPanel', () => {
-  it('renders status, issues, documents and extracted fields', () => {
-    render(<CheckResultPanel result={result} />)
+describe('CheckDetailsSummary', () => {
+  it('renders key check metadata and actions', () => {
+    render(<CheckDetailsSummary result={result} />)
 
-    expect(screen.getByRole('heading', { name: 'Результат проверки' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Сводка проверки' })).toBeInTheDocument()
+    expect(screen.getByText('details-1')).toBeInTheDocument()
+    expect(screen.getByText('Федеральная')).toBeInTheDocument()
     expect(screen.getByText('Требуется ручная проверка')).toBeInTheDocument()
-    expect(screen.getByText('Перед подачей нужна ручная проверка специалистом.')).toBeInTheDocument()
-    expect(screen.getByText('Проверка состава пакета')).toBeInTheDocument()
-    expect(screen.getByText('Договор')).toBeInTheDocument()
-    expect(screen.getByText('Найден')).toBeInTheDocument()
-    expect(screen.getAllByText('Не найден')).toHaveLength(3)
-    expect(screen.getByText(/Предупреждение:/)).toBeInTheDocument()
-    expect(screen.getByText(/договор.pdf - договор, 1 КБ/)).toBeInTheDocument()
-    expect(screen.getByText('ООО «ТехАгро»')).toBeInTheDocument()
+    expect(screen.getByText('Документы')).toBeInTheDocument()
+    expect(screen.getByText('Предупреждения')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Скачать отчёт' })).toBeInTheDocument()
   })
 })

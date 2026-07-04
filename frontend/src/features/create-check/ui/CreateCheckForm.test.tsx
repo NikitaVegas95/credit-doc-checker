@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren, ReactElement } from 'react'
@@ -59,6 +59,12 @@ describe('CreateCheckForm', () => {
     expect(submitButton).toBeDisabled()
 
     await user.selectOptions(screen.getByLabelText('Льготная программа'), 'federal')
+
+    expect(screen.getByText('Состав пакета')).toBeInTheDocument()
+    expect(screen.getByText('Договор')).toBeInTheDocument()
+    expect(screen.getByText('Спецификация')).toBeInTheDocument()
+    expect(screen.getAllByText('Обязательно')).toHaveLength(4)
+
     await user.upload(
       screen.getByLabelText('Перетащите файлы сюда или выберите на компьютере'),
       new File(['contract'], 'договор.pdf', { type: 'application/pdf' }),
@@ -67,6 +73,41 @@ describe('CreateCheckForm', () => {
     expect(screen.getByText('Выбрано файлов: 1')).toBeInTheDocument()
     expect(screen.getByText('договор.pdf')).toBeInTheDocument()
     expect(submitButton).toBeEnabled()
+  })
+
+  it('shows file validation errors and blocks submit', async () => {
+    const user = userEvent.setup()
+
+    renderWithQueryProvider(<CreateCheckForm />)
+
+    await user.selectOptions(screen.getByLabelText('Льготная программа'), 'federal')
+    fireEvent.change(screen.getByLabelText('Перетащите файлы сюда или выберите на компьютере'), {
+      target: {
+        files: [new File(['text'], 'notes.txt', { type: 'text/plain' })],
+      },
+    })
+
+    expect(screen.getByText(/Недопустимый формат/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
+  })
+
+  it('removes selected file from list', async () => {
+    const user = userEvent.setup()
+
+    renderWithQueryProvider(<CreateCheckForm />)
+
+    await user.selectOptions(screen.getByLabelText('Льготная программа'), 'federal')
+    await user.upload(
+      screen.getByLabelText('Перетащите файлы сюда или выберите на компьютере'),
+      new File(['contract'], 'договор.pdf', { type: 'application/pdf' }),
+    )
+
+    expect(screen.getByText('договор.pdf')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Удалить' }))
+
+    expect(screen.queryByText('договор.pdf')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
   })
 
   it('stores created check in query cache after successful submit', async () => {

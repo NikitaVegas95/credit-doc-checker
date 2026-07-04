@@ -1,8 +1,10 @@
 import { CheckStatusBadge, type CheckResult } from '@/entities/check'
 import { downloadJsonReport } from '@/features/download-report'
 import { Button } from '@/shared/ui/button'
+import { getOutcomeGuidance } from '../lib/getOutcomeGuidance'
 
 import { DocumentsList } from './DocumentsList'
+import { DocumentChecklist } from './DocumentChecklist'
 import { ExtractedFieldsList } from './ExtractedFieldsList'
 import { IssuesList } from './IssuesList'
 import styles from './UploadPanel.module.css'
@@ -27,7 +29,9 @@ export function CheckResultPanel({ result }: CheckResultPanelProps) {
         </Button>
       </div>
 
+      <p className={styles.guidance}>{getOutcomeGuidance(result.status)}</p>
       <p className={styles.reason}>{result.reason}</p>
+      <DocumentChecklist result={result} />
       <IssuesList issues={result.issues} />
       <DocumentsList documents={result.documents} />
       <ExtractedFieldsList extracted={result.extracted} />

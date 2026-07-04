@@ -1,15 +1,17 @@
+import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { PROGRAM_OPTIONS, type CheckResult, type Program } from '@/entities/check'
 import { Button } from '@/shared/ui/button'
 import { useCreateCheck } from '../api/useCreateCheck'
+import { ACCEPTED_FILE_EXTENSIONS, validateFiles } from '../lib/fileValidation'
 
 import { SelectedFilesList } from './SelectedFilesList'
+import { DocumentRequirementsList } from './DocumentRequirementsList'
 
 import styles from './CreateCheckForm.module.css'
 
 type CreateCheckFormValues = {
   program: Program | ''
-  files: FileList
 }
 
 type CreateCheckFormProps = {
@@ -22,28 +24,45 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
     control,
     handleSubmit,
     register,
-    resetField,
   } = useForm<CreateCheckFormValues>({
     defaultValues: {
       program: '',
     },
   })
 
-  const selectedFilesValue = useWatch({ control, name: 'files' })
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [isDropActive, setIsDropActive] = useState(false)
   const selectedProgram = useWatch({ control, name: 'program' })
-  const selectedFiles = Array.from(selectedFilesValue ?? [])
+  const fileIssues = useMemo(() => validateFiles(selectedFiles), [selectedFiles])
 
   const createCheckMutation = useCreateCheck({ onSuccess })
 
-  const onSubmit = handleSubmit(({ files, program }) => {
+  const onSubmit = handleSubmit(({ program }) => {
+    if (fileIssues.length > 0 || selectedFiles.length === 0) {
+      return
+    }
+
     createCheckMutation.mutate({
-      files: Array.from(files),
+      files: selectedFiles,
       program: program as Program,
     })
   })
 
   const isSubmitDisabled =
-    createCheckMutation.isPending || !selectedProgram || selectedFiles.length === 0
+    createCheckMutation.isPending ||
+    !selectedProgram ||
+    selectedFiles.length === 0 ||
+    fileIssues.length > 0
+
+  const addFiles = (files: FileList | File[]) => {
+    const filesToAdd = Array.from(files)
+
+    setSelectedFiles((currentFiles) => [...currentFiles, ...filesToAdd])
+  }
+
+  const removeFile = (fileToRemove: File) => {
+    setSelectedFiles((currentFiles) => currentFiles.filter((file) => file !== fileToRemove))
+  }
 
   return (
     <form className={styles.form} onSubmit={onSubmit}>
@@ -66,23 +85,66 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
       </label>
       {errors.program ? <p className={styles.error}>{errors.program.message}</p> : null}
 
-      <label className={styles.dropzone}>
+      <DocumentRequirementsList program={selectedProgram ?? ''} />
+
+      <label
+        className={isDropActive ? `${styles.dropzone} ${styles.dropzoneActive}` : styles.dropzone}
+        onDragOver={(event) => {
+          event.preventDefault()
+          setIsDropActive(true)
+        }}
+        onDragLeave={() => setIsDropActive(false)}
+        onDrop={(event) => {
+          event.preventDefault()
+          setIsDropActive(false)
+          addFiles(event.dataTransfer.files)
+        }}
+      >
         <span>Перетащите файлы сюда или выберите на компьютере</span>
         <input
           multiple
           type="file"
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          {...register('files', {
-            validate: (value) => value.length > 0 || 'Добавьте хотя бы один документ',
-          })}
+          accept={ACCEPTED_FILE_EXTENSIONS.join(',')}
+          onChange={(event) => {
+            if (event.target.files) {
+              addFiles(event.target.files)
+              event.target.value = ''
+            }
+          }}
         />
       </label>
-      {errors.files ? <p className={styles.error}>{errors.files.message}</p> : null}
+      {selectedFiles.length === 0 ? (
+        <p className={styles.hint}>Добавьте хотя бы один документ.</p>
+      ) : null}
 
-      <SelectedFilesList files={selectedFiles} onClear={() => resetField('files')} />
+      {fileIssues.length > 0 ? (
+        <div className={styles.errorList} role="alert">
+          <p>Исправьте ошибки в выбранных файлах:</p>
+          <ul>
+            {fileIssues.map((issue) => (
+              <li key={`${issue.fileName}-${issue.message}`}>
+                <strong>{issue.fileName}:</strong> {issue.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <SelectedFilesList
+        files={selectedFiles}
+        onClear={() => setSelectedFiles([])}
+        onRemove={removeFile}
+      />
 
       {createCheckMutation.isError ? (
         <p className={styles.error}>{createCheckMutation.error.message}</p>
+      ) : null}
+
+      {createCheckMutation.isPending ? (
+        <div className={styles.processing} aria-live="polite">
+          <strong>Анализируем документы</strong>
+          <span className={styles.processingText}>Это может занять несколько секунд.</span>
+        </div>
       ) : null}
 
       <Button type="submit" disabled={isSubmitDisabled}>

@@ -41,6 +41,8 @@ test('submits documents and renders check result', async ({ page }) => {
 
   await page.goto('/')
   await page.getByLabel('Льготная программа').selectOption('federal')
+  await expect(page.getByText('Состав пакета')).toBeVisible()
+  await expect(page.getByText('Спецификация')).toBeVisible()
   await page
     .getByLabel('Перетащите файлы сюда или выберите на компьютере')
     .setInputFiles({
@@ -54,8 +56,24 @@ test('submits documents and renders check result', async ({ page }) => {
   await page.getByRole('button', { name: 'Запустить проверку' }).click()
 
   await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+  await expect(page.getByText('Проверка состава пакета')).toBeVisible()
   await expect(page.getByText('Можно заявлять в банк')).toBeVisible()
   await expect(page.getByText('ООО «ТехАгро»')).toBeVisible()
+})
+
+test('blocks submit for unsupported file format', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Льготная программа').selectOption('federal')
+  await page
+    .getByLabel('Перетащите файлы сюда или выберите на компьютере')
+    .setInputFiles({
+      name: 'notes.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('text'),
+    })
+
+  await expect(page.getByText(/Недопустимый формат/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
 })
 
 test('navigates between check and history pages', async ({ page }) => {
@@ -87,6 +105,47 @@ test('navigates between check and history pages', async ({ page }) => {
 
   await expect(page).toHaveURL('/')
   await expect(page.getByRole('heading', { name: 'Новая проверка' })).toBeVisible()
+})
+
+test('searches checks in history and resets filters', async ({ page }) => {
+  await page.route('**/api/checks', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: [
+        {
+          check_id: 'federal-approve-1',
+          program: 'federal',
+          status: 'approve',
+          status_label: 'Можно заявлять в банк',
+          doc_count: 4,
+          checked_at: '2026-07-03T00:00:00.000Z',
+        },
+        {
+          check_id: 'regional-manual-1',
+          program: 'regional',
+          status: 'manual',
+          status_label: 'Требуется ручная проверка',
+          doc_count: 5,
+          checked_at: '2026-07-03T01:00:00.000Z',
+        },
+      ],
+    })
+  })
+
+  await page.goto('/history')
+
+  await expect(page.getByText('federal-approve-1')).toBeVisible()
+  await expect(page.getByText('regional-manual-1')).toBeVisible()
+
+  await page.getByRole('searchbox', { name: 'Поиск по истории' }).fill('manual')
+
+  await expect(page.getByText('federal-approve-1')).toBeHidden()
+  await expect(page.getByText('regional-manual-1')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Сбросить фильтры' }).click()
+
+  await expect(page.getByText('federal-approve-1')).toBeVisible()
+  await expect(page.getByText('regional-manual-1')).toBeVisible()
 })
 
 test('opens check details from history', async ({ page }) => {
