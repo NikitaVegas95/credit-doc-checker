@@ -35,9 +35,22 @@
   gap: 16px;
 }
 
+.resultActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .resultHeader h3,
 .block h4 {
   margin: 0 0 8px;
+}
+
+.secondaryButton {
+  border: 1px solid #c8d2e0;
+  background: #ffffff;
+  color: #172033;
 }
 
 .reason {
@@ -139,5 +152,9 @@
   .resultHeader {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .resultActions {
+    justify-content: flex-start;
   }
 }

@@ -71,7 +71,7 @@ test('submits documents and renders check result', async ({ page }) => {
   await expect(page.getByText('ООО «ТехАгро»')).toBeVisible()
 })
 
-test('preserves check form state when navigating to history and back', async ({ page }) => {
+test('persists check form state after navigation and refresh', async ({ page }) => {
   await page.route('**/api/checks', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({
@@ -141,6 +141,21 @@ test('preserves check form state when navigating to history and back', async ({ 
   await expect(page.getByLabel('Льготная программа')).toHaveValue('federal')
   await expect(page.getByText('договор.pdf', { exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+  await expect(page.getByRole('status')).toContainText('Черновик сохранен в браузере')
+
+  await page.reload()
+
+  await expect(page).toHaveURL('/')
+  await expect(page.getByLabel('Льготная программа')).toHaveValue('federal')
+  await expect(page.getByText('договор.pdf', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+  await expect(page.getByRole('status')).toContainText('Черновик сохранен в браузере')
+
+  await page.getByRole('button', { name: 'Новая проверка' }).click()
+
+  await expect(page.getByLabel('Льготная программа')).toHaveValue('')
+  await expect(page.getByText('Добавьте хотя бы один документ.')).toBeVisible()
+  await expect(page.getByRole('status')).toHaveCount(0)
 })
 
 test('blocks submit for unsupported file format', async ({ page }) => {

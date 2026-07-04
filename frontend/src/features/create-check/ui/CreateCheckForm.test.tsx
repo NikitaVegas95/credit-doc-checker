@@ -1,11 +1,18 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import axios from 'axios'
 import type { PropsWithChildren, ReactElement } from 'react'
 import { checksQueryKeys } from '@/entities/check'
 import { useCreateCheckFormStore } from '../model/createCheckFormStore'
 
 import { CreateCheckForm } from './CreateCheckForm'
+
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn(),
+  },
+}))
 
 function renderWithQueryProvider(ui: ReactElement) {
   const queryClient = new QueryClient({
@@ -67,6 +74,22 @@ describe('CreateCheckForm', () => {
 
     expect(screen.getByText('Выберите льготную программу')).toBeInTheDocument()
     expect(screen.getByText('Добавьте хотя бы один документ для проверки.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Льготная программа')).toHaveAccessibleDescription('Выберите льготную программу')
+    expect(
+      screen.getByLabelText('Перетащите файлы сюда или выберите на компьютере'),
+    ).toHaveAccessibleDescription('Добавьте хотя бы один документ для проверки.')
+  })
+
+  it('focuses the first missing field after submit attempt', async () => {
+    const user = userEvent.setup()
+
+    renderWithQueryProvider(<CreateCheckForm />)
+
+    await user.click(screen.getByRole('button', { name: 'Запустить проверку' }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Льготная программа')).toHaveFocus()
+    })
   })
 
   it('shows selected files and upload readiness progress', async () => {
@@ -132,9 +155,11 @@ describe('CreateCheckForm', () => {
     const onSuccess = vi.fn()
     const { queryClient } = renderWithQueryProvider(<CreateCheckForm onSuccess={onSuccess} />)
 
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({
+    vi.mocked(axios.post).mockImplementation(async (_url, _body, config) => {
+      config?.onUploadProgress?.({ loaded: 1, total: 1, progress: 1, bytes: 1 } as never)
+
+      return {
+        data: {
           check_id: 'created-1',
           program: 'federal',
           status: 'approve',
@@ -156,13 +181,9 @@ describe('CreateCheckForm', () => {
             subject: 'Поставка минеральных удобрений',
           },
           checked_at: '2026-07-04T00:00:00.000Z',
-        }),
-        {
-          headers: { 'Content-Type': 'application/json' },
-          status: 201,
         },
-      ),
-    )
+      } as never
+    })
 
     await user.selectOptions(screen.getByLabelText('Льготная программа'), 'federal')
     await user.upload(

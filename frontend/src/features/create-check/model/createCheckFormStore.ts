@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { CheckResult, Program } from '@/entities/check'
+import type { PersistedCreateCheckFormState } from '../lib/createCheckFormPersistence'
 
 type CreateCheckFormStore = {
   program: Program | ''
@@ -13,6 +14,7 @@ type CreateCheckFormStore = {
   clearFiles: () => void
   setSubmitAttempted: (value: boolean) => void
   setResult: (result: CheckResult | null) => void
+  hydrate: (state: PersistedCreateCheckFormState) => void
   reset: () => void
 }
 
@@ -57,5 +59,6 @@ export const useCreateCheckFormStore = create<CreateCheckFormStore>((set) => ({
     })),
   setSubmitAttempted: (value) => set((state) => ({ ...state, isSubmitAttempted: value })),
   setResult: (result) => set((state) => ({ ...state, result })),
+  hydrate: (state) => set(() => ({ ...state })),
   reset: () => set(initialState),
 }))

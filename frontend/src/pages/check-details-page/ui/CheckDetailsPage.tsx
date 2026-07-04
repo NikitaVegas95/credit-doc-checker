@@ -45,7 +45,7 @@ export function CheckDetailsPage() {
       {checkDetailsQuery.data ? (
         <>
           <CheckDetailsSummary result={checkDetailsQuery.data} />
-          <CheckResultPanel result={checkDetailsQuery.data} />
+          <CheckResultPanel result={checkDetailsQuery.data} showDownloadReportButton={false} />
         </>
       ) : null}
     </section>

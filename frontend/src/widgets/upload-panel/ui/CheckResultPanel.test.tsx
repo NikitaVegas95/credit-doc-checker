@@ -49,4 +49,10 @@ describe('CheckResultPanel', () => {
     expect(screen.getByText('ООО «ТехАгро»')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Скачать отчёт' })).toBeInTheDocument()
   })
+
+  it('shows the new check action when reset handler is provided', () => {
+    render(<CheckResultPanel result={result} onReset={vi.fn()} />)
+
+    expect(screen.getByRole('button', { name: 'Новая проверка' })).toBeInTheDocument()
+  })
 })

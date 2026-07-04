@@ -170,6 +170,13 @@
   font-weight: 700;
 }
 
+.draftStatus {
+  margin: -6px 0 0;
+  color: #637089;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .errorList {
   display: grid;
   gap: 8px;
