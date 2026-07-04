@@ -63,6 +63,7 @@ test('submits documents and renders check result', async ({ page }) => {
   await page.getByRole('button', { name: 'Запустить проверку' }).click()
 
   await expect(page.getByText('Загружаем документы')).toBeVisible()
+  await expect(page.getByText(/Выполняется запрос/)).toBeVisible()
 
   await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
   await expect(page.getByText('Проверка состава пакета')).toBeVisible()

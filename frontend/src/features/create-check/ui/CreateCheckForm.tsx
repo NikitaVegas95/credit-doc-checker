@@ -4,6 +4,7 @@ import { PROGRAM_OPTIONS, type CheckResult, type Program } from '@/entities/chec
 import { Button } from '@/shared/ui/button'
 import { useCreateCheck } from '../api/useCreateCheck'
 import { ACCEPTED_FILE_EXTENSIONS, validateFiles } from '../lib/fileValidation'
+import { useRequestProgress } from '../lib/useRequestProgress'
 
 import { CreateCheckProgress } from './CreateCheckProgress'
 import { SelectedFilesList } from './SelectedFilesList'
@@ -38,6 +39,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
   const fileIssues = useMemo(() => validateFiles(selectedFiles), [selectedFiles])
 
   const createCheckMutation = useCreateCheck({ onSuccess })
+  const requestProgress = useRequestProgress(createCheckMutation.isPending)
 
   const onSubmit = handleSubmit(({ program }) => {
     setIsSubmitAttempted(true)
@@ -151,7 +153,11 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         onRemove={removeFile}
       />
 
-      <CreateCheckProgress hasFiles={selectedFiles.length > 0} isPending={createCheckMutation.isPending} />
+      <CreateCheckProgress
+        hasFiles={selectedFiles.length > 0}
+        isPending={createCheckMutation.isPending}
+        requestProgress={requestProgress}
+      />
 
       {createCheckMutation.isError ? (
         <p className={styles.error}>{createCheckMutation.error.message}</p>
