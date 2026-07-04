@@ -1,8 +1,10 @@
 export type {
+  CheckDocument,
   CheckIssue,
   CheckResult,
   CheckStatus,
   CheckSummary,
+  ExtractedFields,
   Program,
 } from './model/types'
 export { createCheck, getCheck, getChecks } from './api/checkApi'

@@ -17,9 +17,11 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.2",
     "classnames": "^2.5.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hook-form": "^7.80.0",
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {

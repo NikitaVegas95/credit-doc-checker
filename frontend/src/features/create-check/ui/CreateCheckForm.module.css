@@ -38,3 +38,53 @@
   max-width: 320px;
 }
 
+.fileList {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d9e0eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.fileListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #344054;
+  font-weight: 700;
+}
+
+.fileListHeader button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1f5eff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.fileList ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #52627a;
+  font-size: 14px;
+}
+
+.error {
+  margin: -8px 0 0;
+  color: #bc2b2b;
+  font-size: 14px;
+  font-weight: 700;
+}

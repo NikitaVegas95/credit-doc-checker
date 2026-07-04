@@ -1,6 +1,46 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type { PropsWithChildren } from 'react'
+import type { CheckSummary } from '@/entities/check'
+import { CHECKS_HISTORY_QUERY_KEY } from '../api/useChecksHistory'
 
 import { HistoryTable } from './HistoryTable'
+
+const checks: CheckSummary[] = [
+  {
+    check_id: 'approve-1',
+    checked_at: '2026-07-03T12:00:00.000Z',
+    doc_count: 4,
+    program: 'federal',
+    status: 'approve',
+    status_label: 'Можно заявлять в банк',
+  },
+  {
+    check_id: 'manual-1',
+    checked_at: '2026-07-03T13:00:00.000Z',
+    doc_count: 5,
+    program: 'regional',
+    status: 'manual',
+    status_label: 'Требуется ручная проверка',
+  },
+]
+
+function withChecksHistory(initialChecks: CheckSummary[]) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: Infinity,
+      },
+    },
+  })
+
+  queryClient.setQueryData(CHECKS_HISTORY_QUERY_KEY, initialChecks)
+
+  return function ChecksHistoryDecorator({ children }: PropsWithChildren) {
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  }
+}
 
 const meta = {
   title: 'widgets/HistoryTable',
@@ -11,7 +51,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Виджет истории проверок. В текущей реализации показывает empty-state и не принимает props. Позже должен загружать данные из `GET /api/checks`, поддерживать фильтр по статусу и переход к деталям проверки.',
+          'Виджет истории проверок. Загружает данные из `GET /api/checks` через TanStack Query, поддерживает фильтр по статусу, loading/error/empty/success состояния и ручное обновление.',
       },
     },
   },
@@ -21,13 +61,40 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Empty: Story = {}
+export const WithRows: Story = {
+  render: () => {
+    const Wrapper = withChecksHistory(checks)
 
-Empty.parameters = {
-  docs: {
-    description: {
-      story:
-        'Пустое состояние истории до появления выполненных проверок или до подключения загрузки из mock API.',
+    return (
+      <Wrapper>
+        <HistoryTable />
+      </Wrapper>
+    )
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'История с несколькими проверками и активным фильтром по статусу.',
+      },
+    },
+  },
+}
+
+export const Empty: Story = {
+  render: () => {
+    const Wrapper = withChecksHistory([])
+
+    return (
+      <Wrapper>
+        <HistoryTable />
+      </Wrapper>
+    )
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Пустое состояние истории, когда API вернул пустой список проверок.',
+      },
     },
   },
 }

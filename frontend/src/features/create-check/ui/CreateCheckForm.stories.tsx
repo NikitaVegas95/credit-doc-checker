@@ -1,24 +1,43 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { CreateCheckForm } from './CreateCheckForm'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+})
 
 const meta = {
   title: 'features/CreateCheckForm',
   component: CreateCheckForm,
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <QueryClientProvider client={queryClient}>
+        <Story />
+      </QueryClientProvider>
+    ),
+  ],
   parameters: {
     layout: 'padded',
     docs: {
       description: {
         component:
-          'Форма создания проверки. Сейчас компонент не принимает props: он рендерит выбор льготной программы, поле выбора файлов и disabled-кнопку запуска. На следующем этапе сюда будет подключено состояние формы и отправка в API.',
+          'Форма создания проверки документов. Управление полями реализовано через React Hook Form, отправка в mock API - через TanStack Query mutation.',
       },
     },
   },
   argTypes: {
-    children: {
+    onSuccess: {
+      description:
+        'Callback успешной проверки. Получает полный `CheckResult` из API и используется родительским виджетом для отображения результата.',
       table: {
-        disable: true,
+        type: { summary: '(result: CheckResult) => void' },
       },
     },
   },
@@ -34,7 +53,7 @@ Default.parameters = {
   docs: {
     description: {
       story:
-        'Базовое состояние формы до подключения интерактива. Кнопка запуска намеренно отключена, потому что сценарий отправки ещё не реализован.',
+        'Базовое состояние формы. Кнопка запуска включается после выбора программы и добавления хотя бы одного файла.',
     },
   },
 }
