@@ -89,6 +89,60 @@ test('navigates between check and history pages', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Новая проверка' })).toBeVisible()
 })
 
+test('opens check details from history', async ({ page }) => {
+  await page.route('**/api/checks', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: [
+        {
+          check_id: 'details-1',
+          program: 'federal',
+          status: 'approve',
+          status_label: 'Можно заявлять в банк',
+          doc_count: 4,
+          checked_at: '2026-07-03T00:00:00.000Z',
+        },
+      ],
+    })
+  })
+  await page.route('**/api/checks/details-1', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        check_id: 'details-1',
+        program: 'federal',
+        status: 'approve',
+        status_label: 'Можно заявлять в банк',
+        reason: 'Пакет документов соответствует требованиям выбранной программы.',
+        issues: [],
+        documents: [
+          {
+            name: 'договор.pdf',
+            detected_type: 'contract',
+            size_kb: 1,
+          },
+        ],
+        extracted: {
+          contractor: 'ООО «ТехАгро»',
+          inn: '7701234567',
+          amount: '450 000 ₽',
+          date: '15.03.2025',
+          subject: 'Поставка минеральных удобрений',
+        },
+        checked_at: '2026-07-03T00:00:00.000Z',
+      },
+    })
+  })
+
+  await page.goto('/history')
+  await page.getByRole('link', { name: 'Открыть' }).click()
+
+  await expect(page).toHaveURL('/history/details-1')
+  await expect(page.getByRole('heading', { name: 'Детали проверки' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+  await expect(page.getByText('ООО «ТехАгро»')).toBeVisible()
+})
+
 test('redirects unknown route to check page', async ({ page }) => {
   await page.goto('/unknown')
 

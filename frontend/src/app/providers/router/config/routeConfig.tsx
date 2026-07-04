@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { MainLayout } from '@/app/layouts/main-layout'
+import { CheckDetailsPage } from '@/pages/check-details-page'
 import { CheckPage } from '@/pages/check-page'
 import { HistoryPage } from '@/pages/history-page'
 import { APP_ROUTE_PATHS, type AppRoutePath } from '@/shared/config/routes'
@@ -39,6 +40,11 @@ export const routeConfig = [
         element: <HistoryPage />,
         navLabel: 'История',
         end: false,
+      },
+      {
+        id: 'historyDetails',
+        path: APP_ROUTE_PATHS.historyDetails,
+        element: <CheckDetailsPage />,
       },
       {
         id: 'notFound',

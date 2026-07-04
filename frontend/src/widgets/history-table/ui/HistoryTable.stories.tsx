@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import type { CheckSummary } from '@/entities/check'
 import { CHECKS_HISTORY_QUERY_KEY } from '../api/useChecksHistory'
 
@@ -38,7 +39,11 @@ function withChecksHistory(initialChecks: CheckSummary[]) {
   queryClient.setQueryData(CHECKS_HISTORY_QUERY_KEY, initialChecks)
 
   return function ChecksHistoryDecorator({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    return (
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>{children}</MemoryRouter>
+      </QueryClientProvider>
+    )
   }
 }
 

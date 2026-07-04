@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom'
 import { CheckStatusBadge, type CheckSummary } from '@/entities/check'
+import { getHistoryDetailsPath } from '@/shared/config/routes'
 import { formatCheckedAt } from '../lib/formatCheckedAt'
 import { formatProgram } from '../lib/formatProgram'
 
@@ -19,6 +21,7 @@ export function HistoryRows({ checks }: HistoryRowsProps) {
             <th>Программа</th>
             <th>Статус</th>
             <th>Документы</th>
+            <th>Действие</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +34,11 @@ export function HistoryRows({ checks }: HistoryRowsProps) {
                 <CheckStatusBadge status={check.status} label={check.status_label} />
               </td>
               <td>{check.doc_count}</td>
+              <td>
+                <Link className={styles.rowLink} to={getHistoryDetailsPath(check.check_id)}>
+                  Открыть
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>

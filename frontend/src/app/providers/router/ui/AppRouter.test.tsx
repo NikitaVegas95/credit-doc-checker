@@ -41,6 +41,16 @@ describe('AppRouter', () => {
     expect(screen.getByRole('heading', { name: 'История' })).toBeInTheDocument()
   })
 
+  it('renders check details page on history details route', () => {
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/history/check-1']}>
+        <AppRouter />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Детали проверки' })).toBeInTheDocument()
+  })
+
   it('redirects unknown routes to check page', async () => {
     renderWithProviders(
       <MemoryRouter initialEntries={['/unknown']}>

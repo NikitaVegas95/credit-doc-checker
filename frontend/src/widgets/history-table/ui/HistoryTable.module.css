@@ -105,6 +105,16 @@
   font-weight: 600;
 }
 
+.rowLink {
+  color: #1f5eff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.rowLink:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 680px) {
   .header {
     align-items: stretch;
