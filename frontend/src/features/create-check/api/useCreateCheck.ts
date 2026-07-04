@@ -7,6 +7,7 @@ import {
   type CheckSummary,
   type Program,
 } from '@/entities/check'
+import { useCreateCheckFormStore } from '../model/createCheckFormStore'
 
 type CreateCheckMutationVariables = {
   files: File[]
@@ -23,6 +24,7 @@ export function useCreateCheck({ onSuccess }: UseCreateCheckOptions) {
   return useMutation({
     mutationFn: ({ files, program }: CreateCheckMutationVariables) => createCheck(program, files),
     onSuccess: (result) => {
+      useCreateCheckFormStore.getState().setResult(result)
       queryClient.setQueryData<CheckSummary[]>(checksQueryKeys.all, (checks = []) => [
         toCheckSummary(result),
         ...checks.filter((check) => check.check_id !== result.check_id),

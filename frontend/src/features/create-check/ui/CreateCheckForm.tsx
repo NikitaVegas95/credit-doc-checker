@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { PROGRAM_OPTIONS, type CheckResult, type Program } from '@/entities/check'
 import { Button } from '@/shared/ui/button'
 import { useCreateCheck } from '../api/useCreateCheck'
+import { useCreateCheckFormStore } from '../model/createCheckFormStore'
 import { ACCEPTED_FILE_EXTENSIONS, validateFiles } from '../lib/fileValidation'
 import { useRequestProgress } from '../lib/useRequestProgress'
 
@@ -21,6 +22,15 @@ type CreateCheckFormProps = {
 }
 
 export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
+  const program = useCreateCheckFormStore((state) => state.program)
+  const selectedFiles = useCreateCheckFormStore((state) => state.selectedFiles)
+  const isSubmitAttempted = useCreateCheckFormStore((state) => state.isSubmitAttempted)
+  const setProgram = useCreateCheckFormStore((state) => state.setProgram)
+  const addFiles = useCreateCheckFormStore((state) => state.addFiles)
+  const removeFile = useCreateCheckFormStore((state) => state.removeFile)
+  const clearFiles = useCreateCheckFormStore((state) => state.clearFiles)
+  const setSubmitAttempted = useCreateCheckFormStore((state) => state.setSubmitAttempted)
+
   const {
     formState: { errors },
     control,
@@ -28,13 +38,11 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
     register,
   } = useForm<CreateCheckFormValues>({
     defaultValues: {
-      program: '',
+      program,
     },
   })
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isDropActive, setIsDropActive] = useState(false)
-  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false)
   const selectedProgram = useWatch({ control, name: 'program' })
   const fileIssues = useMemo(() => validateFiles(selectedFiles), [selectedFiles])
 
@@ -42,7 +50,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
   const requestProgress = useRequestProgress(createCheckMutation.isPending)
 
   const onSubmit = handleSubmit(({ program }) => {
-    setIsSubmitAttempted(true)
+    setSubmitAttempted(true)
 
     if (fileIssues.length > 0 || selectedFiles.length === 0) {
       return
@@ -53,22 +61,12 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
       program: program as Program,
     })
   }, () => {
-    setIsSubmitAttempted(true)
+    setSubmitAttempted(true)
   })
 
   const isSubmitDisabled = createCheckMutation.isPending
   const shouldShowProgramError = isSubmitAttempted && !selectedProgram
   const shouldShowFilesError = isSubmitAttempted && selectedFiles.length === 0
-
-  const addFiles = (files: FileList | File[]) => {
-    const filesToAdd = Array.from(files)
-
-    setSelectedFiles((currentFiles) => [...currentFiles, ...filesToAdd])
-  }
-
-  const removeFile = (fileToRemove: File) => {
-    setSelectedFiles((currentFiles) => currentFiles.filter((file) => file !== fileToRemove))
-  }
 
   return (
     <form className={styles.form} onSubmit={onSubmit}>
@@ -78,6 +76,9 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
           aria-invalid={shouldShowProgramError}
           {...register('program', {
             validate: (value) => Boolean(value) || 'Выберите льготную программу',
+            onChange: (event) => {
+              setProgram(event.target.value as Program | '')
+            },
           })}
         >
           <option value="" disabled>
@@ -108,13 +109,14 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
           event.preventDefault()
           setIsDropActive(true)
         }}
-        onDragLeave={() => setIsDropActive(false)}
-        onDrop={(event) => {
-          event.preventDefault()
-          setIsDropActive(false)
-          addFiles(event.dataTransfer.files)
-        }}
-      >
+          onDragLeave={() => setIsDropActive(false)}
+          onDrop={(event) => {
+            event.preventDefault()
+            setIsDropActive(false)
+            const filesToAdd = Array.from(event.dataTransfer.files)
+            addFiles(filesToAdd)
+          }}
+        >
         <span>Перетащите файлы сюда или выберите на компьютере</span>
         <input
           multiple
@@ -122,7 +124,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
           accept={ACCEPTED_FILE_EXTENSIONS.join(',')}
           onChange={(event) => {
             if (event.target.files) {
-              addFiles(event.target.files)
+              addFiles(Array.from(event.target.files))
               event.target.value = ''
             }
           }}
@@ -149,7 +151,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
 
       <SelectedFilesList
         files={selectedFiles}
-        onClear={() => setSelectedFiles([])}
+        onClear={clearFiles}
         onRemove={removeFile}
       />
 

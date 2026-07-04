@@ -71,6 +71,78 @@ test('submits documents and renders check result', async ({ page }) => {
   await expect(page.getByText('ООО «ТехАгро»')).toBeVisible()
 })
 
+test('preserves check form state when navigating to history and back', async ({ page }) => {
+  await page.route('**/api/checks', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        contentType: 'application/json',
+        json: [
+          {
+            check_id: 'history-keep-1',
+            program: 'federal',
+            status: 'approve',
+            status_label: 'Можно заявлять в банк',
+            doc_count: 4,
+            checked_at: '2026-07-03T00:00:00.000Z',
+          },
+        ],
+      })
+      return
+    }
+
+    await page.waitForTimeout(150)
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        check_id: 'keep-1',
+        program: 'federal',
+        status: 'approve',
+        status_label: 'Можно заявлять в банк',
+        reason: 'Пакет документов соответствует требованиям выбранной программы.',
+        issues: [],
+        documents: [
+          {
+            name: 'договор.pdf',
+            detected_type: 'contract',
+            size_kb: 1,
+          },
+        ],
+        extracted: {
+          contractor: 'ООО «ТехАгро»',
+          inn: '7701234567',
+          amount: '450 000 ₽',
+          date: '15.03.2025',
+          subject: 'Поставка минеральных удобрений',
+        },
+        checked_at: '2026-07-03T00:00:00.000Z',
+      },
+    })
+  })
+
+  await page.goto('/')
+  await page.getByLabel('Льготная программа').selectOption('federal')
+  await page
+    .getByLabel('Перетащите файлы сюда или выберите на компьютере')
+    .setInputFiles({
+      name: 'договор.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('contract'),
+    })
+  await page.getByRole('button', { name: 'Запустить проверку' }).click()
+
+  await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+
+  await page.getByRole('link', { name: 'История' }).click()
+  await expect(page).toHaveURL('/history')
+
+  await page.getByRole('link', { name: 'Проверка' }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(page.getByLabel('Льготная программа')).toHaveValue('federal')
+  await expect(page.getByText('договор.pdf', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
+})
+
 test('blocks submit for unsupported file format', async ({ page }) => {
   await page.goto('/')
   await page.getByLabel('Льготная программа').selectOption('federal')

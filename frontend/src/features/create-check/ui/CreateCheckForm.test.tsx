@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren, ReactElement } from 'react'
 import { checksQueryKeys } from '@/entities/check'
+import { useCreateCheckFormStore } from '../model/createCheckFormStore'
 
 import { CreateCheckForm } from './CreateCheckForm'
 
@@ -25,6 +26,10 @@ function renderWithQueryProvider(ui: ReactElement) {
 }
 
 describe('CreateCheckForm', () => {
+  beforeEach(() => {
+    useCreateCheckFormStore.getState().reset()
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
   })
