@@ -143,6 +143,50 @@ test('opens check details from history', async ({ page }) => {
   await expect(page.getByText('ООО «ТехАгро»')).toBeVisible()
 })
 
+test('deletes check from history', async ({ page }) => {
+  let isDeleted = false
+
+  await page.route('**/api/checks', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        contentType: 'application/json',
+        json: isDeleted
+          ? []
+          : [
+              {
+                check_id: 'delete-1',
+                program: 'federal',
+                status: 'reject',
+                status_label: 'Нельзя заявлять в банк',
+                doc_count: 2,
+                checked_at: '2026-07-03T00:00:00.000Z',
+              },
+            ],
+      })
+      return
+    }
+
+    await route.fallback()
+  })
+  await page.route('**/api/checks/delete-1', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      isDeleted = true
+      await route.fulfill({ status: 204 })
+      return
+    }
+
+    await route.fallback()
+  })
+  page.on('dialog', (dialog) => dialog.accept())
+
+  await page.goto('/history')
+  await expect(page.getByText('delete-1')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Удалить' }).click()
+
+  await expect(page.getByText('delete-1')).toBeHidden()
+})
+
 test('redirects unknown route to check page', async ({ page }) => {
   await page.goto('/unknown')
 

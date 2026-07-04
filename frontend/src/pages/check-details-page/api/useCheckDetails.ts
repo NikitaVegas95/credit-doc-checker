@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { getCheck } from '@/entities/check'
+import { checksQueryKeys, getCheck } from '@/entities/check'
 
 export function getCheckDetailsQueryKey(checkId: string) {
-  return ['checks', checkId] as const
+  return checksQueryKeys.detail(checkId)
 }
 
 export function useCheckDetails(checkId: string) {

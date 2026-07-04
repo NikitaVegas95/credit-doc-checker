@@ -40,3 +40,12 @@ export async function getCheck(checkId: string) {
   return response.json() as Promise<CheckResult>
 }
 
+export async function deleteCheck(checkId: string) {
+  const response = await fetch(getApiUrl(`/api/checks/${checkId}`), {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    throw new Error('Не удалось удалить проверку.')
+  }
+}

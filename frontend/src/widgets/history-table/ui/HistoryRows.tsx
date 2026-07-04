@@ -8,9 +8,11 @@ import styles from './HistoryTable.module.css'
 
 type HistoryRowsProps = {
   checks: CheckSummary[]
+  deletingCheckId?: string
+  onDelete: (checkId: string) => void
 }
 
-export function HistoryRows({ checks }: HistoryRowsProps) {
+export function HistoryRows({ checks, deletingCheckId, onDelete }: HistoryRowsProps) {
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
@@ -38,6 +40,14 @@ export function HistoryRows({ checks }: HistoryRowsProps) {
                 <Link className={styles.rowLink} to={getHistoryDetailsPath(check.check_id)}>
                   Открыть
                 </Link>
+                <button
+                  type="button"
+                  className={styles.rowButton}
+                  disabled={deletingCheckId === check.check_id}
+                  onClick={() => onDelete(check.check_id)}
+                >
+                  {deletingCheckId === check.check_id ? 'Удаляем...' : 'Удалить'}
+                </button>
               </td>
             </tr>
           ))}

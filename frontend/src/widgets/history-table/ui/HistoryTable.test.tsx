@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { PropsWithChildren, ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
@@ -51,6 +51,10 @@ function renderWithQueryProvider(ui: ReactElement, initialChecks?: CheckSummary[
 }
 
 describe('HistoryTable', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('renders empty history state', async () => {
     renderWithQueryProvider(<HistoryTable />, [])
 
@@ -77,5 +81,34 @@ describe('HistoryTable', () => {
 
     expect(screen.queryByText('approve-1')).not.toBeInTheDocument()
     expect(screen.getByText('reject-1')).toBeInTheDocument()
+  })
+
+  it('deletes check after confirmation', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((_input, init) => {
+      if (init?.method === 'DELETE') {
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+
+      return Promise.resolve(
+        new Response(JSON.stringify([checks[1]]), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200,
+        }),
+      )
+    })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    renderWithQueryProvider(<HistoryTable />, checks)
+
+    await screen.findByText('approve-1')
+    await user.click(screen.getAllByRole('button', { name: 'Удалить' })[0])
+
+    await waitFor(() => {
+      expect(screen.queryByText('approve-1')).not.toBeInTheDocument()
+    })
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/checks/approve-1'), {
+      method: 'DELETE',
+    })
   })
 })

@@ -7,6 +7,7 @@ export type {
   ExtractedFields,
   Program,
 } from './model/types'
-export { createCheck, getCheck, getChecks } from './api/checkApi'
+export { createCheck, deleteCheck, getCheck, getChecks } from './api/checkApi'
+export { checksQueryKeys } from './api/checkQueryKeys'
 export { PROGRAM_OPTIONS, STATUS_META } from './model/constants'
 export { CheckStatusBadge } from './ui/CheckStatusBadge'

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { getChecks } from '@/entities/check'
+import { checksQueryKeys, getChecks } from '@/entities/check'
 
-export const CHECKS_HISTORY_QUERY_KEY = ['checks'] as const
+export const CHECKS_HISTORY_QUERY_KEY = checksQueryKeys.all
 
 export function useChecksHistory() {
   return useQuery({

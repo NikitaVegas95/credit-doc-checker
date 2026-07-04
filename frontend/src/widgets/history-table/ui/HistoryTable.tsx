@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { filterChecksByStatus } from '@/features/filter-checks'
 import { Button } from '@/shared/ui/button'
+import { useDeleteCheck } from '../api/useDeleteCheck'
 import { useChecksHistory } from '../api/useChecksHistory'
 import type { HistoryStatusFilter as HistoryStatusFilterValue } from '../model/filterOptions'
 
@@ -11,9 +12,16 @@ import styles from './HistoryTable.module.css'
 export function HistoryTable() {
   const [statusFilter, setStatusFilter] = useState<HistoryStatusFilterValue>('all')
   const checksQuery = useChecksHistory()
+  const deleteCheckMutation = useDeleteCheck()
   const checks = checksQuery.data ?? []
   const filteredChecks = filterChecksByStatus(checks, statusFilter)
   const hasChecks = checks.length > 0
+
+  const handleDeleteCheck = (checkId: string) => {
+    if (window.confirm(`Удалить проверку ${checkId}?`)) {
+      deleteCheckMutation.mutate(checkId)
+    }
+  }
 
   return (
     <section className={styles.section} aria-labelledby="history-title">
@@ -49,12 +57,19 @@ export function HistoryTable() {
         <>
           <HistoryStatusFilter value={statusFilter} onChange={setStatusFilter} />
           {filteredChecks.length > 0 ? (
-            <HistoryRows checks={filteredChecks} />
+            <HistoryRows
+              checks={filteredChecks}
+              deletingCheckId={deleteCheckMutation.variables}
+              onDelete={handleDeleteCheck}
+            />
           ) : (
             <div className={styles.empty}>
               <p>Нет проверок с выбранным статусом.</p>
             </div>
           )}
+          {deleteCheckMutation.isError ? (
+            <p className={styles.error}>Не удалось удалить проверку.</p>
+          ) : null}
         </>
       ) : null}
     </section>

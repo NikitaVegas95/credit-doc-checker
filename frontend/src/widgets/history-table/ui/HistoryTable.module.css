@@ -106,6 +106,8 @@
 }
 
 .rowLink {
+  display: inline-flex;
+  margin-right: 12px;
   color: #1f5eff;
   font-weight: 800;
   text-decoration: none;
@@ -113,6 +115,27 @@
 
 .rowLink:hover {
   text-decoration: underline;
+}
+
+.rowButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #bc2b2b;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.rowButton:disabled {
+  color: #9aa8bd;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: #bc2b2b;
+  font-weight: 800;
 }
 
 @media (max-width: 680px) {
