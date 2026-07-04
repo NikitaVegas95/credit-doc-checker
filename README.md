@@ -1,8 +1,8 @@
 # AI-агент проверки льготных кредитов
 
-Монорепозиторий тестового задания: React-фронтенд и mock API поднимаются одной командой через Docker Compose.
+Монорепозиторий тестового задания: React frontend и FastAPI mock API для проверки пакета документов по льготному кредиту.
 
-## Запуск
+## Быстрый запуск
 
 ```bash
 docker compose up --build
@@ -14,39 +14,113 @@ docker compose up --build
 - backend API: http://localhost:8000
 - Swagger: http://localhost:8000/docs
 
-## Frontend tooling
+История проверок хранится в памяти backend-контейнера и очищается после перезапуска.
+
+## Основной сценарий
+
+1. Пользователь выбирает программу: федеральная или областная.
+2. Загружает документы.
+3. Запускает проверку.
+4. Видит результат: можно заявлять, нельзя заявлять или требуется ручная проверка.
+5. Может скачать JSON-отчёт, открыть историю, посмотреть детали и удалить проверку.
+
+## Тестовые файлы
+
+Backend определяет тип документа по имени файла.
+
+Approve:
+
+```text
+договор.pdf
+спецификация.pdf
+счет.pdf
+акт.pdf
+```
+
+Reject:
+
+```text
+договор.pdf
+счет.pdf
+```
+
+Manual:
+
+```text
+договор.pdf
+спецификация.pdf
+счет.pdf
+акт.pdf
+scan0041.jpg
+```
+
+## Команды
+
+Корневые команды:
+
+```bash
+npm run precommit
+npm run stylelint
+```
+
+Frontend:
 
 ```bash
 cd frontend
+npm run dev
+npm run lint
+npm run test
+npm run test:e2e
+npm run test:coverage
+npm run build
 npm run storybook
+npm run build-storybook
 ```
 
-Storybook будет доступен на http://localhost:6006.
+Backend локально:
 
-## Структура
-
-```text
-.
-├── backend/            # FastAPI mock API
-├── frontend/           # React + Vite
-├── docker-compose.yml  # общий запуск двух контейнеров
-└── README.md
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
+
+## Pre-commit
+
+Husky запускает `scripts/pre-commit.sh`.
+
+Проверки:
+
+- frontend ESLint;
+- Stylelint для CSS;
+- Vitest unit/UI tests;
+- Playwright e2e tests;
+- frontend production build.
+
+## Архитектура frontend
 
 Frontend организован по FSD:
 
-- `app` - инициализация и верхнеуровневая композиция;
-- `pages` - страницы сценариев;
-- `widgets` - крупные блоки интерфейса;
+- `app` - инициализация, провайдеры, роутинг, layout;
+- `pages` - страницы маршрутов;
+- `widgets` - крупные сценарные блоки;
 - `features` - пользовательские действия;
-- `entities` - бизнес-сущности и их API;
+- `entities` - бизнес-сущности, типы, API;
 - `shared` - общие UI, конфиг, инфраструктура.
 
 Границы FSD-слоёв проверяются в `frontend/eslint.config.js`.
 
-## Backend
+Принятые решения:
 
-Основные эндпоинты:
+- React Hook Form для форм;
+- TanStack Query для API, mutations и cache;
+- Storybook для UI-документации;
+- Vitest + Testing Library для unit/UI тестов;
+- Playwright для e2e.
+
+## API
+
+Основные endpoint:
 
 - `POST /api/checks` - загрузка файлов и запуск проверки;
 - `GET /api/checks` - история проверок;
@@ -54,4 +128,13 @@ Frontend организован по FSD:
 - `DELETE /api/checks/{check_id}` - удаление проверки;
 - `GET /health` - healthcheck.
 
-История хранится в памяти backend-контейнера и очищается после перезапуска.
+## Структура
+
+```text
+.
+├── backend/            # FastAPI mock API
+├── frontend/           # React + Vite frontend
+├── scripts/            # локальные workflow-скрипты
+├── docker-compose.yml  # общий запуск frontend + backend
+└── README.md
+```
