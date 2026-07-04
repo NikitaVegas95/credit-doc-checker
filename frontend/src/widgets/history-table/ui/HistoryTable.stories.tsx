@@ -24,6 +24,14 @@ const checks: CheckSummary[] = [
     status: 'manual',
     status_label: 'Требуется ручная проверка',
   },
+  {
+    check_id: 'reject-1',
+    checked_at: '2026-07-03T14:00:00.000Z',
+    doc_count: 2,
+    program: 'regional',
+    status: 'reject',
+    status_label: 'Нельзя заявлять в банк',
+  },
 ]
 
 function withChecksHistory(initialChecks: CheckSummary[]) {
@@ -56,7 +64,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Виджет истории проверок. Загружает данные из `GET /api/checks` через TanStack Query, поддерживает фильтр по статусу, loading/error/empty/success состояния и ручное обновление.',
+          'Виджет истории проверок. Загружает данные из `GET /api/checks` через TanStack Query, показывает сводку по статусам, поиск, фильтр по статусу, loading/error/empty/success состояния и ручное обновление.',
       },
     },
   },
@@ -79,7 +87,8 @@ export const WithRows: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'История с несколькими проверками и активным фильтром по статусу.',
+        story:
+          'История с несколькими проверками. Пользователь может искать запись, фильтровать по статусу, открыть детали или удалить проверку.',
       },
     },
   },
