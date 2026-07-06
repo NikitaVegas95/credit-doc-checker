@@ -103,6 +103,19 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+## Деплой на Vercel
+
+Фронтенд подготовлен для деплоя на Vercel из корня репозитория через `vercel.json`.
+Vercel устанавливает зависимости в `frontend`, запускает `npm run build` и публикует `frontend/dist`.
+
+Бэкенд в этот деплой не входит. FastAPI API нужно разместить отдельно, например на Render, Railway или Fly.io, а его публичный адрес передать фронтенду:
+
+```text
+VITE_API_URL=https://адрес-бэкенда
+```
+
+В настройках проекта Vercel добавьте переменную окружения `VITE_API_URL` для Production. После изменения переменной окружения нужно запустить новый деплой.
+
 ## Проверки перед коммитом
 
 Husky запускает `scripts/pre-commit.sh`.
