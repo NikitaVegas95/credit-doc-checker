@@ -43,6 +43,9 @@ VITE_API_PROXY_TARGET=http://localhost:8000
 
 Backend определяет тип документа по имени файла.
 
+Готовый набор файлов для положительного кейса лежит в `test-files/positive-approve`.
+Загрузите все файлы из этой папки, чтобы получить статус `approve`.
+
 Approve:
 
 ```text
