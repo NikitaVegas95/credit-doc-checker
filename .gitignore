@@ -42,3 +42,4 @@ wheels/
 
 # Docker/local runtime
 docker-compose.override.yml
+.vercel/
