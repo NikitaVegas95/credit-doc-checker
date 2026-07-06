@@ -18,11 +18,11 @@ services:
     container_name: credit-check-frontend
     command: npm run dev -- --host 0.0.0.0 --port 5173
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_API_PROXY_TARGET: ${VITE_API_PROXY_TARGET:-http://backend:8000}
     ports:
       - "5173:5173"
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
-

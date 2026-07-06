@@ -1,6 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 
 export function getApiUrl(path: string) {
-  return `${API_URL}${path}`
-}
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
 
+  return API_URL ? `${API_URL}${normalizedPath}` : normalizedPath
+}
