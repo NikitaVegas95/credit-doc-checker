@@ -15,7 +15,7 @@ test('opens check page and highlights required fields after submit attempt', asy
 })
 
 test('submits documents and renders check result', async ({ page }) => {
-  await page.route('**/api/checks', async (route) => {
+  await page.route('**/api/checks/e2e-1', async (route) => {
     await page.waitForTimeout(150)
     await route.fulfill({
       contentType: 'application/json',
@@ -45,6 +45,36 @@ test('submits documents and renders check result', async ({ page }) => {
     })
   })
 
+  await page.route('**/api/checks', async (route) => {
+    await page.waitForTimeout(150)
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        check_id: 'e2e-1',
+        program: 'federal',
+        status: 'processing',
+        status_label: 'Проверка выполняется',
+        reason: 'Файлы загружены. Проверка документов выполняется в фоне.',
+        issues: [],
+        documents: [
+          {
+            name: 'договор.pdf',
+            detected_type: 'contract',
+            size_kb: 1,
+          },
+        ],
+        extracted: {
+          contractor: '',
+          inn: '',
+          amount: '',
+          date: '',
+          subject: '',
+        },
+        checked_at: '2026-07-03T00:00:00.000Z',
+      },
+    })
+  })
+
   await page.goto('/')
   await page.getByLabel('Льготная программа').selectOption('federal')
   await expect(page.getByText('Состав пакета')).toBeVisible()
@@ -58,12 +88,14 @@ test('submits documents and renders check result', async ({ page }) => {
     })
 
   await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
-  await expect(page.getByText('Файлы готовы к загрузке')).toBeVisible()
+  await expect(page.getByText('Файл загружен')).toBeVisible()
 
   await page.getByRole('button', { name: 'Запустить проверку' }).click()
 
-  await expect(page.getByText('Отправляем документы')).toBeVisible()
-  await expect(page.getByText(/Выполняется запрос/)).toBeVisible()
+  await expect(page.getByText(/Загружаем файлы|Загрузка завершена/)).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Идет проверка документов' })).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Проверка запущена' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Открыть детали' })).toHaveAttribute('href', '/history/e2e-1')
 
   await expect(page.getByRole('heading', { name: 'Результат проверки' })).toBeVisible()
   await expect(page.getByText('Проверка состава пакета')).toBeVisible()
@@ -72,6 +104,35 @@ test('submits documents and renders check result', async ({ page }) => {
 })
 
 test('persists check form state after navigation and refresh', async ({ page }) => {
+  await page.route('**/api/checks/keep-1', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        check_id: 'keep-1',
+        program: 'federal',
+        status: 'approve',
+        status_label: 'Можно заявлять в банк',
+        reason: 'Пакет документов соответствует требованиям выбранной программы.',
+        issues: [],
+        documents: [
+          {
+            name: 'договор.pdf',
+            detected_type: 'contract',
+            size_kb: 1,
+          },
+        ],
+        extracted: {
+          contractor: 'ООО «ТехАгро»',
+          inn: '7701234567',
+          amount: '450 000 ₽',
+          date: '15.03.2025',
+          subject: 'Поставка минеральных удобрений',
+        },
+        checked_at: '2026-07-03T00:00:00.000Z',
+      },
+    })
+  })
+
   await page.route('**/api/checks', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({
@@ -96,9 +157,9 @@ test('persists check form state after navigation and refresh', async ({ page }) 
       json: {
         check_id: 'keep-1',
         program: 'federal',
-        status: 'approve',
-        status_label: 'Можно заявлять в банк',
-        reason: 'Пакет документов соответствует требованиям выбранной программы.',
+        status: 'processing',
+        status_label: 'Проверка выполняется',
+        reason: 'Файлы загружены. Проверка документов выполняется в фоне.',
         issues: [],
         documents: [
           {
@@ -108,11 +169,11 @@ test('persists check form state after navigation and refresh', async ({ page }) 
           },
         ],
         extracted: {
-          contractor: 'ООО «ТехАгро»',
-          inn: '7701234567',
-          amount: '450 000 ₽',
-          date: '15.03.2025',
-          subject: 'Поставка минеральных удобрений',
+          contractor: '',
+          inn: '',
+          amount: '',
+          date: '',
+          subject: '',
         },
         checked_at: '2026-07-03T00:00:00.000Z',
       },

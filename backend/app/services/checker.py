@@ -8,7 +8,7 @@ from fastapi import UploadFile
 from app.schemas import CheckResult, DocumentInfo, ExtractedFields, Issue
 
 Program = Literal["federal", "regional"]
-Status = Literal["approve", "reject", "manual"]
+Status = Literal["processing", "approve", "reject", "manual"]
 
 _ALLOWED_EXTENSIONS = {".pdf", ".docx", ".doc", ".jpg", ".jpeg", ".png"}
 
@@ -34,6 +34,7 @@ _TYPE_LABELS: dict[str, str] = {
 }
 
 _STATUS_LABELS: dict[Status, str] = {
+    "processing": "Проверка выполняется",
     "approve": "Можно заявлять в банк",
     "reject":  "Нельзя заявлять в банк",
     "manual":  "Требуется ручная проверка",
@@ -124,22 +125,51 @@ def _fake_extracted(idx: int) -> ExtractedFields:
 
 
 async def run_check(program: Program, files: list[UploadFile]) -> CheckResult:
-    global _call_counter
-
-    docs: list[DocumentInfo] = []
+    docs = []
     for f in files:
-        content = await f.read()
-        docs.append(DocumentInfo(
-            name=f.filename or "unnamed",
-            detected_type=_detect_type(f.filename or ""),
-            size_kb=max(len(content) // 1024, 1),
-        ))
+        docs.append(await build_document_info(f))
 
+    return build_check_result(program, docs)
+
+
+async def build_document_info(file: UploadFile) -> DocumentInfo:
+    content = await file.read()
+    filename = file.filename or "unnamed"
+
+    return DocumentInfo(
+        name=filename,
+        detected_type=_detect_type(filename),
+        size_kb=max(len(content) // 1024, 1),
+    )
+
+
+def build_processing_result(program: Program, docs: list[DocumentInfo]) -> CheckResult:
+    return CheckResult(
+        check_id=str(uuid.uuid4())[:8],
+        program=program,
+        status="processing",
+        status_label=_STATUS_LABELS["processing"],
+        reason="Файлы загружены. Проверка документов выполняется в фоне.",
+        issues=[],
+        documents=docs,
+        extracted=ExtractedFields(
+            contractor="",
+            inn="",
+            amount="",
+            date="",
+            subject="",
+        ),
+        checked_at=datetime.now(timezone.utc),
+    )
+
+
+def build_check_result(program: Program, docs: list[DocumentInfo], check_id: str | None = None) -> CheckResult:
+    global _call_counter
     issues = _build_issues(program, docs)
     status, reason = _resolve_status(issues)
 
     result = CheckResult(
-        check_id=str(uuid.uuid4())[:8],
+        check_id=check_id or str(uuid.uuid4())[:8],
         program=program,
         status=status,
         status_label=_STATUS_LABELS[status],

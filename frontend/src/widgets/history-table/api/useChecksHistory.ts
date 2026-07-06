@@ -7,5 +7,7 @@ export function useChecksHistory() {
   return useQuery({
     queryFn: getChecks,
     queryKey: CHECKS_HISTORY_QUERY_KEY,
+    refetchInterval: (query) =>
+      query.state.data?.some((check) => check.status === 'processing') ? 1000 : false,
   })
 }

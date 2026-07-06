@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import { CheckStatusBadge } from '@/entities/check'
 import { CheckResultPanel } from '@/widgets/upload-panel'
 import { APP_ROUTE_PATHS } from '@/shared/config/routes'
 import { useCheckDetails } from '../api/useCheckDetails'
@@ -32,7 +33,18 @@ export function CheckDetailsPage() {
         <p className={styles.state}>Загружаем детали проверки...</p>
       ) : null}
 
-      {checkDetailsQuery.data ? (
+      {checkDetailsQuery.data?.status === 'processing' ? (
+        <div className={styles.processing} role="status" aria-live="polite">
+          <CheckStatusBadge
+            status={checkDetailsQuery.data.status}
+            label={checkDetailsQuery.data.status_label}
+          />
+          <h3>Проверка документов выполняется</h3>
+          <p>Файлы загружены. Мы обновим эту страницу автоматически, когда результат будет готов.</p>
+        </div>
+      ) : null}
+
+      {checkDetailsQuery.data && checkDetailsQuery.data.status !== 'processing' ? (
         <>
           <CheckDetailsSummary result={checkDetailsQuery.data} />
           <CheckResultPanel result={checkDetailsQuery.data} showDownloadReportButton={false} />

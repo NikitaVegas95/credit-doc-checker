@@ -10,5 +10,6 @@ export function useCheckDetails(checkId: string) {
     enabled: checkId.length > 0,
     queryFn: () => getCheck(checkId),
     queryKey: getCheckDetailsQueryKey(checkId),
+    refetchInterval: (query) => (query.state.data?.status === 'processing' ? 1000 : false),
   })
 }

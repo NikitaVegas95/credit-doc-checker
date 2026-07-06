@@ -26,7 +26,7 @@ class ExtractedFields(BaseModel):
 class CheckResult(BaseModel):
     check_id: str
     program: str
-    status: Literal["approve", "reject", "manual"]
+    status: Literal["processing", "approve", "reject", "manual"]
     status_label: str
     reason: str
     issues: list[Issue]
@@ -38,7 +38,7 @@ class CheckResult(BaseModel):
 class CheckSummary(BaseModel):
     check_id: str
     program: str
-    status: Literal["approve", "reject", "manual"]
+    status: Literal["processing", "approve", "reject", "manual"]
     status_label: str
     doc_count: int
     checked_at: datetime
