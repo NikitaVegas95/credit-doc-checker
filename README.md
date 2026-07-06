@@ -16,6 +16,21 @@ docker compose up --build
 
 История проверок хранится в памяти backend-контейнера и очищается после перезапуска.
 
+## Environment
+
+Frontend читает настройки API из Vite env-переменных:
+
+```text
+VITE_API_URL=
+VITE_API_PROXY_TARGET=http://localhost:8000
+```
+
+По умолчанию локальный frontend ходит в относительный `/api`, а Vite dev-server проксирует запросы на `VITE_API_PROXY_TARGET`.
+
+- Для локальной разработки используйте `frontend/.env.example` как шаблон `frontend/.env`.
+- Для production используйте `frontend/.env.production.example` как шаблон абсолютного `VITE_API_URL`.
+- В Docker Compose frontend проксирует `/api` на backend service `http://backend:8000`; отдельный `.env` для быстрого запуска не требуется.
+
 ## Основной сценарий
 
 1. Пользователь выбирает программу: федеральная или областная.
@@ -114,6 +129,7 @@ Frontend организован по FSD:
 
 - React Hook Form для форм;
 - TanStack Query для API, mutations и cache;
+- route-level error boundaries для разделения API-ошибок и UI-ошибок;
 - Storybook для UI-документации;
 - Vitest + Testing Library для unit/UI тестов;
 - Playwright для e2e.
