@@ -1,12 +1,12 @@
-# Positive approve test files
+# Тестовые файлы для положительного результата
 
-Upload all files from this folder to get the positive `approve` result.
+Загрузите все файлы из этой папки, чтобы получить положительный результат `approve`.
 
-The mock backend detects document types by filename keywords:
+Мок-бэкенд определяет тип документа по ключевым словам в имени файла:
 
-- `01_contract.pdf` -> contract
-- `02_spec.pdf` -> specification
-- `03_invoice.pdf` -> invoice
-- `04_act.pdf` -> act / UPD
+- `01_contract.pdf` - договор
+- `02_spec.pdf` - спецификация
+- `03_invoice.pdf` - счёт
+- `04_act.pdf` - акт / УПД
 
-This full set passes both federal and regional programs.
+Полный набор проходит проверку для федеральной и областной программ.

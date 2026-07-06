@@ -8,8 +8,6 @@
     "allowArbitraryExtensions": true,
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
@@ -20,8 +18,6 @@
     "paths": {
       "@/*": ["src/*"]
     },
-
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,

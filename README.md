@@ -1,6 +1,6 @@
 # AI-агент проверки льготных кредитов
 
-Монорепозиторий тестового задания: React frontend и FastAPI mock API для проверки пакета документов по льготному кредиту.
+Монорепозиторий тестового задания: React-фронтенд и FastAPI мок API для проверки пакета документов по льготному кредиту.
 
 ## Быстрый запуск
 
@@ -10,26 +10,26 @@ docker compose up --build
 
 После запуска:
 
-- frontend: http://localhost:5173
-- backend API: http://localhost:8000
-- Swagger: http://localhost:8000/docs
+- фронтенд: http://localhost:5173
+- API бэкенда: http://localhost:8000
+- документация Swagger: http://localhost:8000/docs
 
-История проверок хранится в памяти backend-контейнера и очищается после перезапуска.
+История проверок хранится в памяти контейнера бэкенда и очищается после перезапуска.
 
-## Environment
+## Переменные окружения
 
-Frontend читает настройки API из Vite env-переменных:
+Фронтенд читает настройки API из переменных окружения Vite:
 
 ```text
 VITE_API_URL=
 VITE_API_PROXY_TARGET=http://localhost:8000
 ```
 
-По умолчанию локальный frontend ходит в относительный `/api`, а Vite dev-server проксирует запросы на `VITE_API_PROXY_TARGET`.
+По умолчанию локальный фронтенд обращается к относительному `/api`, а dev-сервер Vite проксирует запросы на `VITE_API_PROXY_TARGET`.
 
 - Для локальной разработки используйте `frontend/.env.example` как шаблон `frontend/.env`.
-- Для production используйте `frontend/.env.production.example` как шаблон абсолютного `VITE_API_URL`.
-- В Docker Compose frontend проксирует `/api` на backend service `http://backend:8000`; отдельный `.env` для быстрого запуска не требуется.
+- Для продакшен-сборки используйте `frontend/.env.production.example` как шаблон абсолютного `VITE_API_URL`.
+- В Docker Compose фронтенд проксирует `/api` на сервис бэкенда `http://backend:8000`; отдельный `.env` для быстрого запуска не требуется.
 
 ## Основной сценарий
 
@@ -41,12 +41,12 @@ VITE_API_PROXY_TARGET=http://localhost:8000
 
 ## Тестовые файлы
 
-Backend определяет тип документа по имени файла.
+Бэкенд определяет тип документа по имени файла.
 
 Готовый набор файлов для положительного кейса лежит в `test-files/positive-approve`.
 Загрузите все файлы из этой папки, чтобы получить статус `approve`.
 
-Approve:
+Положительный результат:
 
 ```text
 договор.pdf
@@ -55,14 +55,14 @@ Approve:
 акт.pdf
 ```
 
-Reject:
+Отказ:
 
 ```text
 договор.pdf
 счет.pdf
 ```
 
-Manual:
+Ручная проверка:
 
 ```text
 договор.pdf
@@ -81,7 +81,7 @@ npm run precommit
 npm run stylelint
 ```
 
-Frontend:
+Фронтенд:
 
 ```bash
 cd frontend
@@ -95,7 +95,7 @@ npm run storybook
 npm run build-storybook
 ```
 
-Backend локально:
+Бэкенд локально:
 
 ```bash
 cd backend
@@ -103,23 +103,23 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-## Pre-commit
+## Проверки перед коммитом
 
 Husky запускает `scripts/pre-commit.sh`.
 
 Проверки:
 
-- frontend ESLint;
+- ESLint для фронтенда;
 - Stylelint для CSS;
-- Vitest unit/UI tests;
-- Playwright e2e tests;
-- frontend production build.
+- модульные и UI-тесты Vitest;
+- e2e-тесты Playwright;
+- продакшен-сборка фронтенда.
 
-## Архитектура frontend
+## Архитектура фронтенда
 
-Frontend организован по FSD:
+Фронтенд организован по FSD:
 
-- `app` - инициализация, провайдеры, роутинг, layout;
+- `app` - инициализация, провайдеры, роутинг, макет;
 - `pages` - страницы маршрутов;
 - `widgets` - крупные сценарные блоки;
 - `features` - пользовательские действия;
@@ -131,29 +131,29 @@ Frontend организован по FSD:
 Принятые решения:
 
 - React Hook Form для форм;
-- TanStack Query для API, mutations и cache;
-- route-level error boundaries для разделения API-ошибок и UI-ошибок;
+- TanStack Query для API, мутаций и кеша;
+- обработчики ошибок на уровне маршрутов для разделения API-ошибок и UI-ошибок;
 - Storybook для UI-документации;
-- Vitest + Testing Library для unit/UI тестов;
+- Vitest + Testing Library для модульных и UI-тестов;
 - Playwright для e2e.
 
 ## API
 
-Основные endpoint:
+Основные эндпоинты:
 
-- `POST /api/checks` - загрузка файлов и запуск проверки;
+- `POST /api/checks` - загрузка файлов и запуск фоновой проверки;
 - `GET /api/checks` - история проверок;
 - `GET /api/checks/{check_id}` - детали проверки;
 - `DELETE /api/checks/{check_id}` - удаление проверки;
-- `GET /health` - healthcheck.
+- `GET /health` - проверка состояния сервиса.
 
 ## Структура
 
 ```text
 .
-├── backend/            # FastAPI mock API
-├── frontend/           # React + Vite frontend
-├── scripts/            # локальные workflow-скрипты
-├── docker-compose.yml  # общий запуск frontend + backend
+├── backend/            # FastAPI мок API
+├── frontend/           # React + Vite фронтенд
+├── scripts/            # локальные рабочие скрипты
+├── docker-compose.yml  # общий запуск фронтенда и бэкенда
 └── README.md
 ```

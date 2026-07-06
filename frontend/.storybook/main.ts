@@ -32,8 +32,6 @@ const config: StorybookConfig = {
   viteFinal: async (config) =>
     mergeConfig(config, {
       build: {
-        // Storybook ships its preview runtime as one large third-party module.
-        // App builds keep Vite's default limit; this only calibrates Storybook.
         chunkSizeWarningLimit: 800,
         rolldownOptions: {
           output: {

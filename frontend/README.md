@@ -1,4 +1,4 @@
-# Frontend
+# Фронтенд
 
 React + TypeScript + Vite приложение для проверки пакета документов по льготному кредиту.
 
@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-По умолчанию frontend использует API:
+По умолчанию фронтенд использует API:
 
 ```text
 http://localhost:8000
@@ -47,7 +47,7 @@ npm run build-storybook
 
 Код организован по FSD:
 
-- `app` - провайдеры, layout, роутинг;
+- `app` - провайдеры, макет, роутинг;
 - `pages` - страницы маршрутов;
 - `widgets` - крупные блоки сценариев;
 - `features` - действия пользователя;
@@ -59,31 +59,31 @@ npm run build-storybook
 ## Состояние и API
 
 - Формы реализуются через React Hook Form.
-- Серверное состояние, mutations и cache ведёт TanStack Query.
-- Отдельный клиентский state используется локально в компонентах.
+- Серверное состояние, мутации и кеш ведёт TanStack Query.
+- Отдельное клиентское состояние используется локально в компонентах.
 - Для сохранения формы проверки между маршрутами используется Zustand.
 
 ## Тесты
 
-Unit/UI:
+Unit/UI-тесты:
 
 ```bash
 npm run test
 ```
 
-Coverage:
+Покрытие:
 
 ```bash
 npm run test:coverage
 ```
 
-E2E:
+E2E-тесты:
 
 ```bash
 npm run test:e2e
 ```
 
-Playwright поднимает Vite dev server автоматически.
+Playwright поднимает dev-сервер Vite автоматически.
 
 ## Storybook
 
@@ -97,4 +97,4 @@ npm run storybook
 npm run build-storybook
 ```
 
-Stories описывают текущие UI-компоненты, их props и ключевые состояния.
+Истории описывают текущие UI-компоненты, их свойства и ключевые состояния.
