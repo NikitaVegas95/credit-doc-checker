@@ -170,7 +170,7 @@ test('blocks submit for unsupported file format', async ({ page }) => {
     })
 
   await expect(page.getByText(/Недопустимый формат/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
 })
 
 test('navigates between check and history pages', async ({ page }) => {

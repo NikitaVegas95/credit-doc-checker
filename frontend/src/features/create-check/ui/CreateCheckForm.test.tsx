@@ -10,6 +10,7 @@ import { CreateCheckForm } from './CreateCheckForm'
 
 vi.mock('axios', () => ({
   default: {
+    isAxiosError: vi.fn(() => false),
     post: vi.fn(),
   },
 }))
@@ -128,7 +129,7 @@ describe('CreateCheckForm', () => {
     })
 
     expect(screen.getByText(/Недопустимый формат/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Запустить проверку' })).toBeDisabled()
   })
 
   it('removes selected file from list', async () => {

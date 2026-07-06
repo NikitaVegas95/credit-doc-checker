@@ -106,7 +106,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
     setSubmitAttempted(true)
   })
 
-  const isSubmitDisabled = createCheckMutation.isPending
+  const isSubmitDisabled = createCheckMutation.isPending || fileIssues.length > 0
   const shouldShowProgramError = isSubmitAttempted && !selectedProgram
   const shouldShowFilesError = isSubmitAttempted && selectedFiles.length === 0
   const hasDraft = Boolean(storedProgram || selectedFiles.length || isSubmitAttempted || createCheckMutation.isSuccess || createCheckMutation.isError)
@@ -247,7 +247,11 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         <p className={styles.error}>{createCheckMutation.error.message}</p>
       ) : null}
 
-      <Button type="submit" disabled={isSubmitDisabled}>
+      <Button
+        type="submit"
+        disabled={isSubmitDisabled}
+        title={fileIssues.length > 0 ? 'Исправьте ошибки в выбранных файлах' : undefined}
+      >
         {createCheckMutation.isPending ? 'Проверяем...' : 'Запустить проверку'}
       </Button>
     </form>
