@@ -1,7 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { CheckResultPanel } from '@/widgets/upload-panel'
 import { APP_ROUTE_PATHS } from '@/shared/config/routes'
-import { Button } from '@/shared/ui/button'
 import { useCheckDetails } from '../api/useCheckDetails'
 
 import { CheckDetailsSummary } from './CheckDetailsSummary'
@@ -31,15 +30,6 @@ export function CheckDetailsPage() {
 
       {checkId && checkDetailsQuery.isLoading ? (
         <p className={styles.state}>Загружаем детали проверки...</p>
-      ) : null}
-
-      {checkId && checkDetailsQuery.isError ? (
-        <div className={styles.error}>
-          <p>Не удалось загрузить детали проверки.</p>
-          <Button type="button" onClick={() => void checkDetailsQuery.refetch()}>
-            Повторить
-          </Button>
-        </div>
       ) : null}
 
       {checkDetailsQuery.data ? (

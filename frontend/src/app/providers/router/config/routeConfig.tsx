@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { MainLayout } from '@/app/layouts/main-layout'
+import { ApiErrorBoundary, UiErrorBoundary } from '@/app/providers/error-boundaries'
 import { CheckDetailsPage } from '@/pages/check-details-page'
 import { CheckPage } from '@/pages/check-page'
 import { HistoryPage } from '@/pages/history-page'
@@ -21,6 +22,11 @@ type AppLayoutRouteObject = {
 }
 
 const DEFAULT_ROUTE_PATH = APP_ROUTE_PATHS.check
+const withRouteErrorBoundaries = (element: ReactNode) => (
+  <UiErrorBoundary>
+    <ApiErrorBoundary>{element}</ApiErrorBoundary>
+  </UiErrorBoundary>
+)
 
 export const routeConfig = [
   {
@@ -30,21 +36,21 @@ export const routeConfig = [
       {
         id: 'check',
         path: APP_ROUTE_PATHS.check,
-        element: <CheckPage />,
+        element: withRouteErrorBoundaries(<CheckPage />),
         navLabel: 'Проверка',
         end: true,
       },
       {
         id: 'history',
         path: APP_ROUTE_PATHS.history,
-        element: <HistoryPage />,
+        element: withRouteErrorBoundaries(<HistoryPage />),
         navLabel: 'История',
         end: false,
       },
       {
         id: 'historyDetails',
         path: APP_ROUTE_PATHS.historyDetails,
-        element: <CheckDetailsPage />,
+        element: withRouteErrorBoundaries(<CheckDetailsPage />),
       },
       {
         id: 'notFound',

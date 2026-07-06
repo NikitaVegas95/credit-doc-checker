@@ -45,15 +45,6 @@ export function HistoryTable() {
 
       {checksQuery.isLoading ? <p className={styles.state}>Загружаем историю...</p> : null}
 
-      {checksQuery.isError ? (
-        <div className={styles.empty}>
-          <p>Не удалось загрузить историю проверок.</p>
-          <Button type="button" onClick={() => void checksQuery.refetch()}>
-            Повторить
-          </Button>
-        </div>
-      ) : null}
-
       {checksQuery.isSuccess && !hasChecks ? (
         <div className={styles.empty}>
           <p>Пока нет данных</p>
