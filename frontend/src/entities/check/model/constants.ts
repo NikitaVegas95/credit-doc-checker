@@ -5,9 +5,9 @@ export const PROGRAM_OPTIONS: Array<{ value: Program; label: string }> = [
   { value: 'regional', label: 'Областная' },
 ]
 
-export const STATUS_META: Record<CheckStatus, { tone: 'success' | 'danger' | 'warning' }> = {
+export const STATUS_META: Record<CheckStatus, { tone: 'success' | 'danger' | 'warning' | 'info' }> = {
+  processing: { tone: 'info' },
   approve: { tone: 'success' },
   reject: { tone: 'danger' },
   manual: { tone: 'warning' },
 }
-

@@ -7,6 +7,7 @@ export const HISTORY_STATUS_FILTER_OPTIONS: Array<{
   value: HistoryStatusFilter
 }> = [
   { value: 'all', label: 'Все' },
+  { value: 'processing', label: 'Выполняется' },
   { value: 'approve', label: 'Можно заявлять' },
   { value: 'reject', label: 'Нельзя заявлять' },
   { value: 'manual', label: 'Ручная проверка' },

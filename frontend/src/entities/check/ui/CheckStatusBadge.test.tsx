@@ -4,6 +4,7 @@ import { CheckStatusBadge } from './CheckStatusBadge'
 
 describe('CheckStatusBadge', () => {
   it.each([
+    ['processing', 'Проверка выполняется'],
     ['approve', 'Можно заявлять в банк'],
     ['reject', 'Нельзя заявлять в банк'],
     ['manual', 'Требуется ручная проверка'],

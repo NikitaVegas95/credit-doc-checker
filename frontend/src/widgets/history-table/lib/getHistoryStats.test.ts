@@ -19,6 +19,14 @@ const checks: CheckSummary[] = [
     status: 'manual',
     status_label: 'Требуется ручная проверка',
   },
+  {
+    check_id: 'processing-1',
+    checked_at: '2026-07-03T14:00:00.000Z',
+    doc_count: 4,
+    program: 'federal',
+    status: 'processing',
+    status_label: 'Проверка выполняется',
+  },
 ]
 
 describe('getHistoryStats', () => {
@@ -26,8 +34,9 @@ describe('getHistoryStats', () => {
     expect(getHistoryStats(checks)).toEqual({
       approve: 1,
       manual: 1,
+      processing: 1,
       reject: 0,
-      total: 2,
+      total: 3,
     })
   })
 })

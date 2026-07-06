@@ -3,12 +3,13 @@ import { formatFileSize } from '../lib/formatFileSize'
 import styles from './CreateCheckForm.module.css'
 
 type SelectedFilesListProps = {
+  disabled?: boolean
   files: File[]
   onClear: () => void
   onRemove: (file: File) => void
 }
 
-export function SelectedFilesList({ files, onClear, onRemove }: SelectedFilesListProps) {
+export function SelectedFilesList({ disabled = false, files, onClear, onRemove }: SelectedFilesListProps) {
   if (files.length === 0) {
     return null
   }
@@ -17,7 +18,7 @@ export function SelectedFilesList({ files, onClear, onRemove }: SelectedFilesLis
     <div className={styles.fileList}>
       <div className={styles.fileListHeader}>
         <span>Выбрано файлов: {files.length}</span>
-        <button type="button" onClick={onClear}>
+        <button type="button" disabled={disabled} onClick={onClear}>
           Очистить
         </button>
       </div>
@@ -27,7 +28,7 @@ export function SelectedFilesList({ files, onClear, onRemove }: SelectedFilesLis
             <span>{file.name}</span>
             <span className={styles.fileMeta}>
               {formatFileSize(file.size)}
-              <button type="button" onClick={() => onRemove(file)}>
+              <button type="button" disabled={disabled} onClick={() => onRemove(file)}>
                 Удалить
               </button>
             </span>

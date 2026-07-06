@@ -1,6 +1,6 @@
 export type Program = 'federal' | 'regional'
 
-export type CheckStatus = 'approve' | 'reject' | 'manual'
+export type CheckStatus = 'processing' | 'approve' | 'reject' | 'manual'
 
 export type CheckIssue = {
   level: 'error' | 'warning'
@@ -41,4 +41,3 @@ export type CheckSummary = {
   doc_count: number
   checked_at: string
 }
-

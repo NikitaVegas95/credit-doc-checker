@@ -18,6 +18,10 @@ export function HistorySummary({ stats }: HistorySummaryProps) {
         <dd>{stats.approve}</dd>
       </div>
       <div>
+        <dt>Выполняется</dt>
+        <dd>{stats.processing}</dd>
+      </div>
+      <div>
         <dt>Нельзя заявлять</dt>
         <dd>{stats.reject}</dd>
       </div>

@@ -1,6 +1,7 @@
 .success,
 .danger,
-.warning {
+.warning,
+.info {
   display: inline-flex;
   width: fit-content;
   align-items: center;
@@ -26,3 +27,7 @@
   color: #8a4b00;
 }
 
+.info {
+  background: #eef4ff;
+  color: #1f5eff;
+}

@@ -14,6 +14,7 @@ export function getHistoryStats(checks: CheckSummary[]): HistoryStats {
     {
       approve: 0,
       manual: 0,
+      processing: 0,
       reject: 0,
       total: 0,
     },

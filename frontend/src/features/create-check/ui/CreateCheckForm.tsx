@@ -24,6 +24,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
   const storedProgram = useCreateCheckFormStore((state) => state.program)
   const selectedFiles = useCreateCheckFormStore((state) => state.selectedFiles)
   const isSubmitAttempted = useCreateCheckFormStore((state) => state.isSubmitAttempted)
+  const result = useCreateCheckFormStore((state) => state.result)
   const setProgram = useCreateCheckFormStore((state) => state.setProgram)
   const addFiles = useCreateCheckFormStore((state) => state.addFiles)
   const removeFile = useCreateCheckFormStore((state) => state.removeFile)
@@ -106,10 +107,25 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
     setSubmitAttempted(true)
   })
 
-  const isSubmitDisabled = createCheckMutation.isPending || fileIssues.length > 0
+  const isCheckProcessing = result?.status === 'processing'
+  const isFormLocked = createCheckMutation.isPending || isCheckProcessing
+  const isSubmitDisabled = isFormLocked || fileIssues.length > 0
   const shouldShowProgramError = isSubmitAttempted && !selectedProgram
   const shouldShowFilesError = isSubmitAttempted && selectedFiles.length === 0
+  const hasValidFiles = selectedFiles.length > 0 && fileIssues.length === 0
   const hasDraft = Boolean(storedProgram || selectedFiles.length || isSubmitAttempted || createCheckMutation.isSuccess || createCheckMutation.isError)
+  const fileUploadTitle = createCheckMutation.isPending
+    ? 'Файлы загружены, идет проверка'
+    : hasValidFiles
+      ? selectedFiles.length === 1
+        ? 'Файл загружен'
+        : 'Файлы загружены'
+      : 'Перетащите файлы сюда или выберите на компьютере'
+  const fileUploadDescription = createCheckMutation.isPending
+    ? 'Документы уже переданы. Анализируем пакет по требованиям программы.'
+    : hasValidFiles
+      ? 'Все окей, документы добавлены и готовы к проверке.'
+      : 'Поддерживаются PDF, DOC, DOCX, JPG и PNG.'
   const programErrorId = 'create-check-program-error'
   const filesErrorId = 'create-check-files-error'
   const filesIssuesId = 'create-check-files-issues'
@@ -140,6 +156,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
               {...field}
               aria-invalid={shouldShowProgramError}
               aria-describedby={programDescribedBy}
+              disabled={isFormLocked}
               onChange={(event) => {
                 field.onChange(event)
                 setProgram(event.target.value as Program | '')
@@ -179,6 +196,8 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         className={[
           styles.dropzone,
           isDropActive ? styles.dropzoneActive : '',
+          hasValidFiles ? styles.dropzoneSuccess : '',
+          createCheckMutation.isPending ? styles.dropzonePending : '',
           shouldShowFilesError ? styles.dropzoneInvalid : '',
         ]
           .filter(Boolean)
@@ -191,17 +210,23 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         onDrop={(event) => {
           event.preventDefault()
           setIsDropActive(false)
+          if (isFormLocked) {
+            return
+          }
           const filesToAdd = Array.from(event.dataTransfer.files)
           addFiles(filesToAdd)
         }}
       >
-        <span>Перетащите файлы сюда или выберите на компьютере</span>
+        <span className={styles.dropzoneTitle}>{fileUploadTitle}</span>
+        <span className={styles.dropzoneDescription}>{fileUploadDescription}</span>
         <input
           ref={fileInputRef}
           multiple
           type="file"
           accept={ACCEPTED_FILE_EXTENSIONS.join(',')}
+          aria-label="Перетащите файлы сюда или выберите на компьютере"
           aria-describedby={filesDescribedBy}
+          disabled={isFormLocked}
           onChange={(event) => {
             if (event.target.files) {
               addFiles(Array.from(event.target.files))
@@ -232,12 +257,14 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
       ) : null}
 
       <SelectedFilesList
+        disabled={isFormLocked}
         files={selectedFiles}
         onClear={clearFiles}
         onRemove={removeFile}
       />
 
       <CreateCheckProgress
+        fileCount={selectedFiles.length}
         hasFiles={selectedFiles.length > 0}
         isPending={createCheckMutation.isPending}
         uploadProgress={uploadProgress}
@@ -252,7 +279,7 @@ export function CreateCheckForm({ onSuccess }: CreateCheckFormProps) {
         disabled={isSubmitDisabled}
         title={fileIssues.length > 0 ? 'Исправьте ошибки в выбранных файлах' : undefined}
       >
-        {createCheckMutation.isPending ? 'Проверяем...' : 'Запустить проверку'}
+        {isCheckProcessing ? 'Проверка выполняется' : createCheckMutation.isPending ? 'Запускаем...' : 'Запустить проверку'}
       </Button>
     </form>
   )

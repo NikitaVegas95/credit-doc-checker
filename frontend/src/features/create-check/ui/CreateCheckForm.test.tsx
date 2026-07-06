@@ -93,7 +93,7 @@ describe('CreateCheckForm', () => {
     })
   })
 
-  it('shows selected files and upload readiness progress', async () => {
+  it('shows selected files and uploaded file status', async () => {
     const user = userEvent.setup()
 
     renderWithQueryProvider(<CreateCheckForm />)
@@ -112,8 +112,9 @@ describe('CreateCheckForm', () => {
 
     expect(screen.getByText('Выбрано файлов: 1')).toBeInTheDocument()
     expect(screen.getByText('договор.pdf')).toBeInTheDocument()
-    expect(screen.getByText('Файлы готовы к загрузке')).toBeInTheDocument()
-    expect(screen.getByText('100%')).toBeInTheDocument()
+    expect(screen.getByText('Файл загружен')).toBeInTheDocument()
+    expect(screen.getByText('Все окей, документы добавлены и готовы к проверке.')).toBeInTheDocument()
+    expect(screen.getByText('Документы добавлены и готовы к проверке.')).toBeInTheDocument()
   })
 
   it('shows file validation errors and blocks submit', async () => {
@@ -194,6 +195,7 @@ describe('CreateCheckForm', () => {
     await user.click(screen.getByRole('button', { name: 'Запустить проверку' }))
 
     expect(await screen.findByRole('button', { name: 'Запустить проверку' })).toBeEnabled()
+    expect(screen.queryByText('Идет проверка документов')).not.toBeInTheDocument()
     expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ check_id: 'created-1' }))
     expect(queryClient.getQueryData(checksQueryKeys.all)).toEqual([
       expect.objectContaining({

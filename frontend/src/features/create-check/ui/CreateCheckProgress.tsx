@@ -1,6 +1,7 @@
 import styles from './CreateCheckForm.module.css'
 
 type CreateCheckProgressProps = {
+  fileCount?: number
   hasFiles: boolean
   isPending: boolean
   requestProgress?: number
@@ -8,6 +9,7 @@ type CreateCheckProgressProps = {
 }
 
 export function CreateCheckProgress({
+  fileCount = 0,
   hasFiles,
   isPending,
   requestProgress,
@@ -17,28 +19,40 @@ export function CreateCheckProgress({
 
   if (isPending) {
     const progressValue = Math.max(0, Math.min(currentProgress, 100))
-    const activeStep = progressValue < 100 ? 'Отправляем документы' : 'Проверяем пакет'
+    const uploadStep = progressValue < 100 ? 'Загружаем файлы' : 'Загрузка завершена'
+    const uploadDescription = progressValue < 100
+      ? 'Передаем документы в API.'
+      : 'Документы приняты, можно выполнять проверку.'
 
     return (
-      <div className={styles.progressPanel} aria-live="polite">
-        <div className={styles.progressHeader}>
-          <strong>{activeStep}</strong>
-          <span className={styles.progressValue}>{progressValue}%</span>
+      <>
+        <div className={styles.progressPanel} aria-live="polite">
+          <div className={styles.progressHeader}>
+            <strong>{uploadStep}</strong>
+            <span className={styles.progressValue}>{progressValue}%</span>
+          </div>
+          <progress className={styles.progressBar} value={progressValue} max={100} />
+          <p>{uploadDescription}</p>
         </div>
-        <progress className={styles.progressBar} value={progressValue} max={100} />
-        <p>Выполняется запрос: файлы передаются в API, затем пакет анализируется по требованиям программы.</p>
-      </div>
+        <div className={styles.checkStatusPanel} role="status" aria-live="polite">
+          <div className={styles.progressHeader}>
+            <strong>Идет проверка документов</strong>
+            <span className={styles.processingBadge}>В работе</span>
+          </div>
+          <p>Сверяем состав пакета, типы документов и требования выбранной льготной программы.</p>
+        </div>
+      </>
     )
   }
 
   if (hasFiles) {
     return (
-      <div className={styles.progressPanel}>
+      <div className={styles.progressPanel} aria-live="polite">
         <div className={styles.progressHeader}>
-          <strong>Файлы готовы к загрузке</strong>
-          <span className={styles.progressValue}>100%</span>
+          <strong>Готово к проверке</strong>
+          <span className={styles.progressValue}>{fileCount}</span>
         </div>
-        <progress className={styles.progressBar} value={100} max={100} />
+        <p>Документы добавлены и готовы к проверке.</p>
       </div>
     )
   }

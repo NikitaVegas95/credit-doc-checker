@@ -18,7 +18,7 @@ const meta = {
   argTypes: {
     stats: {
       description:
-        'Предрасчитанная статистика истории: `total`, `approve`, `reject`, `manual`. Обычно получается из `getHistoryStats(checks)`.',
+        'Предрасчитанная статистика истории: `total`, `processing`, `approve`, `reject`, `manual`. Обычно получается из `getHistoryStats(checks)`.',
       table: {
         type: { summary: 'HistoryStats' },
       },
@@ -35,8 +35,9 @@ export const WithChecks: Story = {
     stats: {
       approve: 7,
       manual: 2,
+      processing: 1,
       reject: 1,
-      total: 10,
+      total: 11,
     },
   },
   parameters: {
@@ -53,6 +54,7 @@ export const Empty: Story = {
     stats: {
       approve: 0,
       manual: 0,
+      processing: 0,
       reject: 0,
       total: 0,
     },
